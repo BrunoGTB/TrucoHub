@@ -1,6 +1,6 @@
 # 🃏 TrucoHub
 
-Sistema web para cadastro de jogadores e gerenciamento de partidas de truco, com controle de pontuação, registro de vitórias, histórico de partidas e dashboards para acompanhamento de desempenho individual e coletivo.
+Sistema web para jogadores de truco organizarem as próprias partidas, com contagem de pontos padronizada, registro de vitórias, histórico de partidas e ranking de jogadores e duplas.
 
 ---
 
@@ -8,54 +8,115 @@ Sistema web para cadastro de jogadores e gerenciamento de partidas de truco, com
 
 ### 1.1. Problema
 
-Atualmente, a organização de campeonatos locais de truco enfrenta dificuldades relacionadas à padronização da contagem de pontos e ao acompanhamento do desempenho dos participantes.
+Em partidas e campeonatos informais de truco, a contagem de pontos e o acompanhamento do desempenho dos jogadores não seguem um padrão.
 
-O registro de partidas e a apuração de estatísticas, como taxa de vitórias por jogador, desempenho das duplas e rankings gerais, são frequentemente realizados manualmente ou por meio de planilhas informais.
+O registro das partidas e a apuração de estatísticas, como vitórias por jogador, desempenho das duplas e rankings, costumam ser feitos à mão ou em planilhas informais.
 
-Essa falta de padronização dificulta o gerenciamento dos campeonatos, o acompanhamento do histórico dos participantes e a identificação dos jogadores e duplas com melhor desempenho.
+Sem padronização, fica difícil marcar partidas, acompanhar o histórico de cada jogador e saber quais jogadores e duplas têm o melhor desempenho.
 
 ### 1.2. Solução
 
-O **TrucoHub** é um sistema web desenvolvido para facilitar a organização e o gerenciamento de partidas e campeonatos de truco.
+O **TrucoHub** é um sistema web em que cada jogador cria a própria conta, adiciona amigos, forma duplas e marca partidas 2×2 (duplas) ou 1×1 (individual).
 
-A aplicação permitirá cadastrar jogadores, organizar duplas, gerenciar mesas e registrar partidas, disponibilizando um sistema de contagem de pontos e acompanhamento dos resultados.
+Durante a partida, o criador registra os pontos de cada mão (1, 3, 6, 9 ou 12) até um lado somar 12 pontos. O resultado entra automaticamente no desempenho dos jogadores e das duplas e no ranking.
 
-Além disso, o sistema contará com dashboards e estatísticas para apresentar o desempenho individual dos jogadores e coletivo das duplas, facilitando a consulta de históricos e rankings.
+Contas de Admin cuidam da moderação: banem, reativam e excluem jogadores e excluem partidas.
 
-### 1.3. Funcionalidades previstas
+### 1.3. Funcionalidades (requisitos funcionais)
 
-- Autenticação e login de usuários.
-- Cadastro e gerenciamento de jogadores.
-- Cadastro e gerenciamento de duplas.
-- Cadastro e gerenciamento de mesas.
-- Criação e gerenciamento de partidas.
-- Controle de pontuação durante as partidas.
-- Registro de resultados e vitórias.
-- Consulta ao histórico de partidas.
-- Dashboard com estatísticas e rankings.
+A especificação completa, com os casos de uso, está no [Documento de Requisitos](docs/requisitos/Documento_de_Requisitos_TrucoHub.pdf).
+
+**Conta do Jogador**
+- RF001 – Autenticar Jogador (login obrigatório para todas as funcionalidades)
+- RF002 – Cadastrar Jogador
+- RF003 – Consultar Jogador
+- RF004 – Alterar Jogador
+- RF005 – Excluir Jogador
+
+**Amizade**
+- RF006 – Enviar Pedido de Amizade
+- RF007 – Responder Pedido de Amizade
+- RF008 – Consultar Amigos
+
+**Dupla**
+- RF009 – Formar Dupla
+- RF010 – Responder Convite de Dupla
+- RF011 – Consultar Dupla
+
+**Partida**
+- RF012 – Criar Partida
+- RF013 – Consultar Partida
+- RF014 – Alterar Partida
+- RF015 – Excluir Partida
+- RF016 – Responder Convite de Partida
+- RF023 – Entrar em Partida em Espera
+- RF017 – Iniciar Partida
+- RF018 – Registrar Pontos
+- RF019 – Finalizar Partida
+
+**Competitivo**
+- RF020 – Consultar Desempenho do Jogador
+- RF021 – Consultar Desempenho da Dupla
+- RF022 – Exibir Ranking
+
+**Administração**
+- RF024 – Banir Jogador
+- RF025 – Reativar Jogador
+
+O CRUD de uma tabela é a conta do Jogador (RF002 a RF005). O CRUD de três tabelas é a Partida, com Dupla e Jogador (RF012 a RF015).
+
+### 1.4. Requisitos não funcionais
+
+| ID | Requisito |
+|---|---|
+| NF001 | Exibir todas as telas sem rolagem horizontal em larguras de 360 px a 1920 px. |
+| NF002 | Botões e links com área clicável de no mínimo 44 × 44 px. |
+| NF003 | Disponibilidade mínima de 99,0% do tempo em cada mês. |
+| NF004 | Manter o placar e os lançamentos de uma partida em andamento após recarregar a página. |
+| NF005 | Exibir o conteúdo principal de cada tela em até 3 s (Lighthouse 12, conexão de 10 Mbps). |
+| NF006 | Mostrar aos participantes cada lançamento de pontos em até 2 s. |
+| NF007 | Expirar convites sem resposta entre 180 e 190 s após o envio. |
+| NF008 | Guardar senhas apenas como hash scrypt (Firebase Authentication). |
+| NF009 | Trafegar os dados por HTTPS com TLS 1.2 ou superior. |
+| NF010 | Encerrar a sessão após 30 minutos sem interação. |
+| NF011 | Bloquear o login de um e-mail por 15 minutos após 5 senhas incorretas seguidas. |
+| NF012 | Publicar o sistema no Netlify, em https://trucohub.netlify.app. |
+| NF013 | Contraste de texto mínimo de 4,5:1 (WCAG 2.1, nível AA). |
+| NF014 | Todos os textos da interface em português do Brasil (pt-BR). |
+| NF015 | Funcionar no Chrome 120+, Firefox 120+ e Edge 120+, no Windows 10 ou superior. |
+| NF016 | Funcionar no Safari 17+ (iOS 17+) e no Chrome 120+ (Android 12+). |
+
+### 1.5. Protótipo
+
+As 20 telas (Desktop e Mobile) estão no [Figma](https://www.figma.com/design/uCVdOtPQJ7I0i3izYB8LJE/TrucoHub---Identidade-Visual), com os fluxos de navegação. A relação entre cada tela e os requisitos que ela atende está no capítulo 4 do Documento de Requisitos.
 
 ---
 
 ## 2. INSTRUÇÕES PARA USO
 
-Esta seção apresentará os procedimentos necessários para instalar, configurar e utilizar o TrucoHub, considerando usuários que não participam diretamente do desenvolvimento.
+Esta seção apresenta como acessar e usar o TrucoHub, para usuários que não participam do desenvolvimento.
 
 ### 2.1. Pré-requisitos
 
-Os seguintes componentes serão necessários para executar a aplicação:
-
-- Navegador web atualizado.
+- Computador com Windows 10 ou superior e Google Chrome 120+, Mozilla Firefox 120+ ou Microsoft Edge 120+; **ou**
+- Celular com iOS 17+ (Safari 17+) ou Android 12+ (Google Chrome 120+).
 - Conexão com a internet.
 
-As versões e demais dependências necessárias serão especificadas conforme a configuração final do projeto.
-
-### 2.2. Acesso e Navegação
+### 2.2. Acesso e navegação
 
 **Acessar o sistema**
 
-- Abra o site [TrucoHub](https://trucohub.netlify.app)
-- Vá em "Criar" e faça o Sing-up.
-- Depois faça o Login com os dados Cadastrados
+1. Abra o site [TrucoHub](https://trucohub.netlify.app).
+2. Clique em **Criar conta** e preencha nome, apelido, e-mail e senha (mínimo de 8 caracteres).
+3. Depois, entre com o e-mail e a senha cadastrados.
+
+**Primeiros passos**
+
+1. Em **Amigos**, busque jogadores pelo nome ou apelido e envie pedidos de amizade.
+2. Em **Duplas**, forme uma dupla com um amigo; ela vale depois que ele aceitar.
+3. Em **Partidas**, crie uma partida 2×2 ou 1×1 e convide amigos, ou deixe a partida na lista de espera para qualquer jogador entrar.
+4. Com todos confirmados, inicie a partida e registre os pontos de cada mão.
+5. Acompanhe os resultados em **Ranking** e no seu **Perfil**.
 
 ---
 
@@ -87,15 +148,13 @@ Com o Node.js instalado, execute o comando abaixo no diretório do projeto:
 npm install
 ```
 
-Esse comando instalará as dependências declaradas no arquivo `package.json`, caso ele esteja presente na versão final do projeto.
-
-**Observação:** As dependências e os comandos definitivos deverão ser documentados conforme a configuração efetiva do projeto.
+Esse comando instalará as dependências declaradas no arquivo `package.json`.
 
 ### 3.3. Configuração do ambiente
 
-Configure as variáveis de ambiente e as credenciais necessárias para a integração com os serviços Firebase.
+Configure as variáveis de ambiente e as credenciais do projeto Firebase (Authentication e Cloud Firestore).
 
-Não compartilhe arquivos contendo credenciais ou informações sensíveis no repositório público.
+Não envie arquivos com credenciais ou informações sensíveis para o repositório público.
 
 ### 3.4. Execução do projeto
 
@@ -119,11 +178,13 @@ As seguintes tecnologias foram definidas para o desenvolvimento do TrucoHub:
 |---|---|---|
 | HTML | 5 | Estruturação das páginas web. |
 | CSS | 3 | Estilização e apresentação da interface. |
-| JavaScript | ES17 | Implementação da lógica e interatividade da aplicação. |
-| Node.js | 26.13.0 | Ambiente de execução JavaScript no backend. |
-| Firebase CLI | 15.35.0 | Ferramenta de linha de comando para gerenciamento e configuração de serviços Firebase. |
-
-**Observação:** O Firebase CLI é uma ferramenta de gerenciamento, não o banco de dados propriamente dito. O serviço Firebase utilizado para persistência dos dados deverá ser identificado e documentado conforme a arquitetura definitiva.
+| JavaScript | ES17 (ECMAScript 2026) | Implementação da lógica e interatividade da aplicação. |
+| Node.js | 26.13.0 | Ambiente de execução JavaScript. |
+| Firebase Authentication | — | Login com e-mail e senha. |
+| Cloud Firestore | — | Banco de dados. |
+| Firebase CLI | 15.35.0 | Gerenciamento e configuração dos serviços Firebase. |
+| Netlify | — | Hospedagem do site. |
+| Figma | — | Prototipação das telas. |
 
 ---
 
@@ -131,54 +192,64 @@ As seguintes tecnologias foram definidas para o desenvolvimento do TrucoHub:
 
 O TrucoHub será organizado de maneira modular, buscando facilitar a manutenção, a compreensão do código e a evolução das funcionalidades.
 
-A estrutura definitiva deverá acompanhar a arquitetura efetivamente adotada durante a implementação.
-
-### 5.1. Estrutura de pastas proposta
+### 5.1. Estrutura de pastas
 
 ```text
 TrucoHub/
 │
+├── docs/
+│   └── requisitos/
+│       └── Documento_de_Requisitos_TrucoHub.pdf
+│
+├── Padrões Adotados/
+│   ├── Regras de Verificação e Analise de Requisitos.md
+│   └── registros/
+│       └── verificacao-2026-11-08.md
+│
 ├── public/
 │   └── assets/
-│       ├── images/
-│       └── icons/
+│       ├── icons/
+│       └── images/
 │
 ├── src/
-│   ├── frontend/
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── pages/
-│   │
 │   ├── backend/
 │   │   ├── controllers/
 │   │   ├── models/
 │   │   ├── routes/
 │   │   └── services/
 │   │
-│   └── config/
-│
-├── docs/
+│   ├── config/
+│   │
+│   └── frontend/
+│       ├── css/
+│       │   └── style.css
+│       ├── js/
+│       │   └── script.js
+│       └── pages/
+│           └── index.html
 │
 ├── tests/
-│   ├── unit/
-│   └── e2e/
+│   ├── e2e/
+│   └── unit/
 │
 ├── .gitignore
-├── package.json
 └── README.md
 ```
 
 ### 5.2. Descrição dos diretórios
 
-- **`public/`**: arquivos estáticos utilizados pela aplicação, como imagens, ícones e outros recursos visuais.
+- **`docs/`**: documentação do projeto.
+  - **`requisitos/`**: documento de requisitos (casos de uso, requisitos não funcionais, rastreabilidade com o protótipo e dicionário de dados).
+- **`Padrões Adotados/`**: padrões da equipe, como as regras de verificação e análise de requisitos.
+  - **`registros/`**: um arquivo por verificação dos requisitos, nomeado `verificacao-AAAA-MM-DD.md` com a data em que foi feita. Cada registro traz o resultado de cada requisito nas regras e o nome do revisor, que deve ser um integrante diferente do autor dos requisitos.
+- **`public/`**: arquivos estáticos utilizados pela aplicação, como ícones e imagens.
 - **`src/`**: contém o código-fonte principal do sistema.
-  - **`frontend/`**: arquivos responsáveis pela interface e interação com o usuário.
   - **`backend/`**: componentes responsáveis pelas regras de negócio e processamento das requisições.
   - **`config/`**: configurações necessárias para o funcionamento da aplicação.
-- **`docs/`**: documentação do projeto, incluindo requisitos, diagramas, especificações e manuais.
+  - **`frontend/`**: arquivos responsáveis pela interface e interação com o usuário (estilos, scripts e páginas).
 - **`tests/`**: arquivos relacionados aos testes automatizados.
-  - **`unit/`**: testes unitários.
   - **`e2e/`**: testes automatizados de ponta a ponta.
+  - **`unit/`**: testes unitários.
 
 ---
 
