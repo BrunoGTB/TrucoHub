@@ -79,6 +79,10 @@ input {
   font: inherit;
 }
 
+input[readonly] {
+  background: #eeeeee;
+}
+
 button {
   min-height: var(--altura-minima-toque);
   padding: 8px 16px;
@@ -89,6 +93,18 @@ button {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+button.secundario {
+  background: #ffffff;
+  color: var(--cor-primaria);
+  border: 2px solid var(--cor-primaria);
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .lista {

@@ -15,6 +15,9 @@ const elementoMensagem = document.querySelector('#mensagem');
 const formCadastro = document.querySelector('#form-cadastro');
 const formBusca = document.querySelector('#form-busca');
 const listaJogadores = document.querySelector('#lista-jogadores');
+const secaoEdicao = document.querySelector('#secao-edicao');
+const formEdicao = document.querySelector('#form-edicao');
+const botaoCancelar = document.querySelector('#botao-cancelar');
 
 /**
  * Faz uma requisição à API e devolve o JSON da resposta.
@@ -84,9 +87,40 @@ async function buscarJogadores(texto = '') {
     const item = document.createElement('li');
     const descricao = document.createElement('span');
     descricao.textContent = `${jogador.nome} (${jogador.apelido})`;
-    item.append(descricao);
+    const botaoEditar = document.createElement('button');
+    botaoEditar.type = 'button';
+    botaoEditar.className = 'secundario';
+    botaoEditar.textContent = 'Editar';
+    botaoEditar.addEventListener('click', () => abrirEdicao(jogador.id));
+    item.append(descricao, botaoEditar);
     listaJogadores.append(item);
   }
+}
+
+/**
+ * Carrega o jogador e abre o formulário de edição (RF004).
+ * @param {string} id
+ */
+async function abrirEdicao(id) {
+  try {
+    const jogador = await chamarApi(`/${id}`);
+    formEdicao.reset();
+    formEdicao.elements.id.value = jogador.id;
+    formEdicao.elements.email.value = jogador.email;
+    formEdicao.elements.nome.value = jogador.nome;
+    formEdicao.elements.apelido.value = jogador.apelido;
+    formEdicao.elements.fotoUrl.value = jogador.fotoUrl ?? '';
+    secaoEdicao.hidden = false;
+    formEdicao.elements.nome.focus();
+  } catch (erro) {
+    exibirMensagem(erro.message, 'erro');
+  }
+}
+
+/** Esconde o formulário de edição sem salvar. */
+function fecharEdicao() {
+  formEdicao.reset();
+  secaoEdicao.hidden = true;
 }
 
 formCadastro.addEventListener('submit', async (evento) => {
@@ -109,5 +143,23 @@ formBusca.addEventListener('submit', async (evento) => {
     exibirMensagem(erro.message, 'erro');
   }
 });
+
+formEdicao.addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const { id, email, senha, confirmacaoSenha, ...alteracoes } = lerFormulario(formEdicao);
+  if (senha) {
+    Object.assign(alteracoes, { senha, confirmacaoSenha });
+  }
+  try {
+    await chamarApi(`/${id}`, { metodo: 'PATCH', corpo: alteracoes });
+    fecharEdicao();
+    exibirMensagem('Perfil atualizado com sucesso!', 'sucesso');
+    await buscarJogadores();
+  } catch (erro) {
+    exibirMensagem(erro.message, 'erro');
+  }
+});
+
+botaoCancelar.addEventListener('click', fecharEdicao);
 
 buscarJogadores().catch((erro) => exibirMensagem(erro.message, 'erro'));
