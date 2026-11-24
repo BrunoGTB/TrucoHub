@@ -114,6 +114,52 @@ describe('JogadorService', () => {
     });
   });
 
+  describe('alterarJogador (RF004)', () => {
+    it('altera nome, apelido e foto', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      const alterado = await service.alterarJogador(id, {
+        nome: 'Maria S.',
+        apelido: 'mari',
+        fotoUrl: 'https://exemplo.com/foto.png'
+      });
+      assert.equal(alterado.nome, 'Maria S.');
+      assert.equal(alterado.apelido, '@mari');
+      assert.equal(alterado.fotoUrl, 'https://exemplo.com/foto.png');
+    });
+
+    it('permite manter o próprio apelido', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      const alterado = await service.alterarJogador(id, { apelido: '@maria' });
+      assert.equal(alterado.apelido, '@maria');
+    });
+
+    it('rejeita apelido de outro jogador (RF002.1)', async () => {
+      await service.cadastrarJogador(dadosCadastro({ apelido: 'zap', email: 'z@x.com' }));
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await assert.rejects(service.alterarJogador(id, { apelido: 'zap' }), { message: MENSAGENS.APELIDO_EM_USO });
+    });
+
+    it('não permite alterar o e-mail', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await assert.rejects(service.alterarJogador(id, { email: 'novo@x.com' }), {
+        message: MENSAGENS.EMAIL_NAO_ALTERAVEL
+      });
+    });
+
+    it('troca a senha quando ela é válida', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      const novaSenha = 'novaSenha456';
+      await service.alterarJogador(id, { senha: novaSenha, confirmacaoSenha: novaSenha });
+      await assert.rejects(service.excluirJogador(id, SENHA_VALIDA), { message: 'Senha incorreta.' });
+      await service.excluirJogador(id, novaSenha);
+    });
+
+    it('rejeita alteração sem campos', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await assert.rejects(service.alterarJogador(id, {}), { message: MENSAGENS.NADA_PARA_ALTERAR });
+    });
+  });
+
   describe('excluirJogador (RF005)', () => {
     it('exige a senha (RF005.1)', async () => {
       const { id } = await service.cadastrarJogador(dadosCadastro());

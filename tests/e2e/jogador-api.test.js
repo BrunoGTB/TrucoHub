@@ -91,6 +91,13 @@ describe('API /api/jogadores', () => {
     assert.equal(inexistente.status, 404);
   });
 
+  it('altera o nome do jogador (RF004)', async () => {
+    const id = await cadastrarJogador('altera_rf004');
+    const alteracao = await requisitar(`/${id}`, 'PATCH', { nome: 'Carlos Alberto' });
+    assert.equal(alteracao.status, 200);
+    assert.equal(alteracao.corpo.nome, 'Carlos Alberto');
+  });
+
   it('exclui a conta com a senha e deixa de encontrar o jogador (RF005)', async () => {
     const id = await cadastrarJogador('exclui_rf005');
 
