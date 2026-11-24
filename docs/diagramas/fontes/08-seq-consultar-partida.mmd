@@ -1,0 +1,57 @@
+---
+title: "RF013 - Consultar Partida (CRUD de 3 tabelas: partida, dupla, jogador - Read)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T11 Partidas<br/>partidas.html
+    participant S as «script»<br/>partidas.js
+    participant R as «route»<br/>partida-routes.js
+    participant C as «controller»<br/>partida-controller.js
+    participant SV as «service»<br/>partida-service.js
+    participant M as «model»<br/>partida.js
+    participant RJ as «repository»<br/>jogador-repository-firestore.js
+    participant RD as «repository»<br/>dupla-repository-firestore.js
+    participant RP as «repository»<br/>partida-repository-firestore.js
+    participant DB as «database»<br/>Firestore
+
+    U->>T: seleciona "Partidas" no menu
+    T->>S: carregarPartidas()
+    S->>R: fetch GET /api/partidas?jogador=idJogadorLogado
+    R->>C: listar(req, res)
+    C->>SV: buscarPartidasDoJogador(idJogadorLogado)
+    SV->>RD: listarPorJogador(idJogadorLogado)
+    RD->>DB: duplas where jogador1 ou jogador2 == id
+    DB-->>RD: duplas do jogador
+    RD-->>SV: duplas
+    SV->>RP: listarPorJogadorOuDuplas(idJogadorLogado, idsDuplas)
+    RP->>DB: partidas where id_jogador_a/b ou id_dupla_a/b in [...]
+    DB-->>RP: partidas
+    RP-->>SV: partidas
+    SV->>RJ: buscarPorIds(idsJogadoresDasPartidas)
+    RJ->>DB: jogadores where id in [...]
+    DB-->>RJ: jogadores
+    RJ-->>SV: jogadores
+    SV->>M: montarConfronto(partida, duplas, jogadores)
+    M-->>SV: partidas com confronto, placar e status
+    SV-->>C: partidas
+    C-->>R: res.status(200).json(partidas)
+    R-->>S: 200 OK + JSON
+    S->>T: renderizarAbas(partidas por status)
+    T-->>U: apresenta abas Em andamento, Agendadas e Histórico
+    U->>T: clica em uma partida do histórico
+    T->>S: onSelecionar(idPartida)
+    S->>R: fetch GET /api/partidas/:id
+    R->>C: consultar(req, res)
+    C->>SV: consultarPartida(id)
+    SV->>RP: buscarPorId(id)
+    RP->>DB: doc("partidas/" + id).get()
+    DB-->>RP: partida
+    RP-->>SV: partida
+    SV->>M: montarConfronto(partida, duplas, jogadores)
+    M-->>SV: partida detalhada
+    SV-->>C: partida
+    C-->>R: res.status(200).json(partida)
+    R-->>S: 200 OK + JSON
+    S->>T: renderizarResultado(partida)
+    T-->>U: apresenta T14 Resultado (placar, vencedor e duração)

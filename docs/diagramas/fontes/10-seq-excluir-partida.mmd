@@ -1,0 +1,46 @@
+---
+title: "RF015 - Excluir Partida (CRUD de 3 tabelas: partida, dupla, jogador - Delete)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T11 Partidas<br/>partidas.html
+    participant S as «script»<br/>partidas.js
+    participant R as «route»<br/>partida-routes.js
+    participant C as «controller»<br/>partida-controller.js
+    participant SV as «service»<br/>partida-service.js
+    participant RD as «repository»<br/>dupla-repository-firestore.js
+    participant RP as «repository»<br/>partida-repository-firestore.js
+    participant RC as «repository»<br/>convite-partida-repository-firestore.js
+    participant DB as «database»<br/>Firestore
+
+    U->>T: clica em "Excluir" na partida agendada
+    T->>S: onExcluir(idPartida)
+    S->>T: abrirDialogoConfirmacao("Deseja excluir a partida [confronto]?")
+    U->>T: confirma a exclusão
+    T->>S: onConfirmarExclusao(idPartida)
+    S->>R: fetch DELETE /api/partidas/:id
+    R->>C: excluir(req, res)
+    C->>SV: excluirPartida(idJogadorLogado, idPartida)
+    SV->>RP: buscarPorId(idPartida)
+    RP->>DB: doc("partidas/" + id).get()
+    DB-->>RP: partida
+    RP-->>SV: partida
+    SV->>RD: buscarPorIds(idDuplaA, idDuplaB)
+    RD->>DB: duplas where id in [...]
+    DB-->>RD: duplas
+    RD-->>SV: duplas (para identificar os convidados)
+    SV->>SV: validar criador e status AGENDADA ou EM_ESPERA (RF015.1)
+    SV->>RC: excluirPorPartida(idPartida)
+    RC->>DB: batch: delete convites_partida where id_partida == id
+    DB-->>RC: ok
+    RC-->>SV: ok
+    SV->>RP: excluir(idPartida)
+    RP->>DB: doc("partidas/" + id).delete()
+    DB-->>RP: ok
+    RP-->>SV: ok
+    SV-->>C: ok
+    C-->>R: res.status(204).send()
+    R-->>S: 204 No Content
+    S->>T: removerDaLista(idPartida) e exibirMensagem("Partida excluída.")
+    T-->>U: apresenta T11 Partidas atualizada

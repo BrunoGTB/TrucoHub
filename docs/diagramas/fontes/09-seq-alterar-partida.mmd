@@ -1,0 +1,52 @@
+---
+title: "RF014 - Alterar Partida (CRUD de 3 tabelas: partida, dupla, jogador - Update)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T12 Nova partida (edição)<br/>partidas.html
+    participant S as «script»<br/>partidas.js
+    participant R as «route»<br/>partida-routes.js
+    participant C as «controller»<br/>partida-controller.js
+    participant SV as «service»<br/>partida-service.js
+    participant RJ as «repository»<br/>jogador-repository-firestore.js
+    participant RD as «repository»<br/>dupla-repository-firestore.js
+    participant RP as «repository»<br/>partida-repository-firestore.js
+    participant RC as «repository»<br/>convite-partida-repository-firestore.js
+    participant DB as «database»<br/>Firestore
+
+    U->>T: altera data, horário ou dupla adversária e clica em "Salvar alterações"
+    T->>S: onSalvar(formulario)
+    S->>S: validarFormulario(dados)
+    S->>R: fetch PATCH /api/partidas/:id {dataHoraAgendada, idDuplaB}
+    R->>C: alterar(req, res)
+    C->>SV: alterarPartida(idJogadorLogado, idPartida, dados)
+    SV->>RP: buscarPorId(idPartida)
+    RP->>DB: doc("partidas/" + id).get()
+    DB-->>RP: partida
+    RP-->>SV: partida
+    SV->>SV: validar criador (RF014.1) e status AGENDADA ou EM_ESPERA (RF014.2)
+    SV->>RD: buscarPorId(novaIdDuplaB)
+    RD->>DB: doc("duplas/" + idDuplaB).get()
+    DB-->>RD: nova dupla adversária
+    RD-->>SV: duplaB
+    SV->>RJ: buscarPorIds(jogadores da duplaB)
+    RJ->>DB: jogadores where id in [...]
+    DB-->>RJ: jogadores
+    RJ-->>SV: jogadores
+    SV->>SV: aplicarRegras(RF012.1 a RF012.3)
+    SV->>RP: atualizar(idPartida, alteracoes)
+    RP->>DB: doc("partidas/" + id).update(alteracoes)
+    DB-->>RP: ok
+    RP-->>SV: partida atualizada
+    SV->>RC: cancelarPorJogadores(idPartida, jogadoresRetirados)
+    RC->>DB: update status "RECUSADO"
+    SV->>RC: inserirVarios(convites dos jogadores incluídos)
+    RC->>DB: batch: collection("convites_partida").add(...)
+    DB-->>RC: ok
+    RC-->>SV: ok
+    SV-->>C: partida
+    C-->>R: res.status(200).json(partida)
+    R-->>S: 200 OK + JSON
+    S->>T: exibirMensagem("Partida alterada com sucesso!")
+    T-->>U: apresenta T11 Partidas

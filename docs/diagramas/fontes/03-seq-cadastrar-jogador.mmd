@@ -1,0 +1,45 @@
+---
+title: "RF002 - Cadastrar Jogador (CRUD de 1 tabela - Create)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T02 Criar conta<br/>jogadores.html
+    participant S as «script»<br/>jogadores.js
+    participant R as «route»<br/>jogador-routes.js
+    participant C as «controller»<br/>jogador-controller.js
+    participant SV as «service»<br/>jogador-service.js
+    participant H as «util»<br/>senha.js
+    participant M as «model»<br/>jogador.js
+    participant RP as «repository»<br/>jogador-repository-firestore.js
+    participant DB as «database»<br/>Firestore: jogadores
+
+    U->>T: preenche nome, apelido, e-mail, senha e clica em "Criar conta"
+    T->>S: onSubmit(formulario)
+    S->>S: validarFormulario(dados)
+    S->>R: fetch POST /api/jogadores {nome, apelido, email, senha}
+    R->>C: cadastrar(req, res)
+    C->>SV: cadastrarJogador(dados)
+    SV->>RP: buscarPorApelido(apelido)
+    RP->>DB: where("apelido", "==", apelido).get()
+    DB-->>RP: nenhum documento
+    RP-->>SV: null
+    SV->>RP: buscarPorEmail(email)
+    RP->>DB: where("email", "==", email).get()
+    DB-->>RP: nenhum documento
+    RP-->>SV: null
+    SV->>H: gerarHashSenha(senha)
+    H-->>SV: senha_hash (scrypt)
+    SV->>M: criarJogador({nome, apelido, email, senha_hash})
+    M-->>SV: jogador (perfil JOGADOR, status ATIVO, data_cadastro)
+    SV->>RP: inserir(jogador)
+    RP->>DB: collection("jogadores").add(jogador)
+    DB-->>RP: id_jogador
+    RP-->>SV: jogador salvo
+    SV->>M: paraRespostaPublica(jogador)
+    M-->>SV: jogador sem senha_hash
+    SV-->>C: jogador
+    C-->>R: res.status(201).json(jogador)
+    R-->>S: 201 Created + JSON
+    S->>T: exibirMensagem("Conta criada com sucesso!")
+    T-->>U: apresenta T03 Home

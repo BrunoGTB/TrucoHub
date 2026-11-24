@@ -1,0 +1,48 @@
+---
+title: "RF003 - Consultar Jogador (CRUD de 1 tabela - Read)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T05 Buscar jogadores<br/>jogadores.html
+    participant S as «script»<br/>jogadores.js
+    participant R as «route»<br/>jogador-routes.js
+    participant C as «controller»<br/>jogador-controller.js
+    participant SV as «service»<br/>jogador-service.js
+    participant M as «model»<br/>jogador.js
+    participant RP as «repository»<br/>jogador-repository-firestore.js
+    participant DB as «database»<br/>Firestore: jogadores
+
+    U->>T: digita parte do nome ou do apelido
+    T->>S: onBuscar(texto)
+    S->>R: fetch GET /api/jogadores?busca=texto
+    R->>C: listar(req, res)
+    C->>SV: buscarJogadores(texto)
+    SV->>RP: listarAtivos()
+    RP->>DB: where("status", "==", "ATIVO").get()
+    DB-->>RP: documentos
+    RP-->>SV: jogadores ativos
+    SV->>SV: filtrar por nome ou apelido que contenha o texto
+    SV->>M: paraRespostaPublica(jogadores)
+    M-->>SV: lista sem senha_hash
+    SV-->>C: lista de jogadores
+    C-->>R: res.status(200).json(lista)
+    R-->>S: 200 OK + JSON
+    S->>T: renderizarLista(lista)
+    T-->>U: apresenta nome e apelido de cada jogador
+    U->>T: clica em um jogador
+    T->>S: onSelecionar(idJogador)
+    S->>R: fetch GET /api/jogadores/:id
+    R->>C: consultar(req, res)
+    C->>SV: consultarJogador(id)
+    SV->>RP: buscarPorId(id)
+    RP->>DB: doc("jogadores/" + id).get()
+    DB-->>RP: documento
+    RP-->>SV: jogador
+    SV->>M: paraRespostaPublica(jogador)
+    M-->>SV: jogador sem senha_hash
+    SV-->>C: jogador
+    C-->>R: res.status(200).json(jogador)
+    R-->>S: 200 OK + JSON
+    S->>T: renderizarPerfil(jogador)
+    T-->>U: apresenta T07 Perfil do jogador

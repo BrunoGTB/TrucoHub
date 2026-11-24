@@ -1,0 +1,53 @@
+---
+title: "RF012 - Criar Partida (CRUD de 3 tabelas: partida, dupla, jogador - Create)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T12 Nova partida<br/>partidas.html
+    participant S as «script»<br/>partidas.js
+    participant R as «route»<br/>partida-routes.js
+    participant C as «controller»<br/>partida-controller.js
+    participant SV as «service»<br/>partida-service.js
+    participant M as «model»<br/>partida.js
+    participant RJ as «repository»<br/>jogador-repository-firestore.js
+    participant RD as «repository»<br/>dupla-repository-firestore.js
+    participant RP as «repository»<br/>partida-repository-firestore.js
+    participant RC as «repository»<br/>convite-partida-repository-firestore.js
+    participant DB as «database»<br/>Firestore
+
+    U->>T: escolhe tipo 2x2, sua dupla, dupla adversária, data e horário
+    U->>T: clica em "Criar e enviar convites"
+    T->>S: onCriar(formulario)
+    S->>S: validarFormulario(dados)
+    S->>R: fetch POST /api/partidas {tipo, idDuplaA, idDuplaB, dataHoraAgendada}
+    R->>C: criar(req, res)
+    C->>SV: cadastrarPartida(idJogadorLogado, dados)
+    SV->>RJ: buscarPorId(idJogadorLogado)
+    RJ->>DB: doc("jogadores/" + id).get()
+    DB-->>RJ: criador
+    RJ-->>SV: criador
+    SV->>RD: buscarPorId(idDuplaA)
+    RD->>DB: doc("duplas/" + idDuplaA).get()
+    DB-->>RD: dupla do criador (ATIVA)
+    RD-->>SV: duplaA
+    SV->>RD: buscarPorId(idDuplaB)
+    RD->>DB: doc("duplas/" + idDuplaB).get()
+    DB-->>RD: dupla adversária
+    RD-->>SV: duplaB
+    SV->>SV: aplicarRegras(RF012.1 a RF012.5)
+    SV->>M: criarPartida({tipo, criador, duplaA, duplaB, dataHoraAgendada})
+    M-->>SV: partida (AGENDADA, 0 x 0, limite 12)
+    SV->>RP: inserir(partida)
+    RP->>DB: collection("partidas").add(partida)
+    DB-->>RP: id_partida
+    RP-->>SV: partida salva
+    SV->>RC: inserirVarios(convites do parceiro e dos adversários, expira em 3 min)
+    RC->>DB: batch: collection("convites_partida").add(...)
+    DB-->>RC: ok
+    RC-->>SV: convites
+    SV-->>C: partida
+    C-->>R: res.status(201).json(partida)
+    R-->>S: 201 Created + JSON
+    S->>T: exibirMensagem("Partida criada! Convites enviados.")
+    T-->>U: apresenta T11 Partidas

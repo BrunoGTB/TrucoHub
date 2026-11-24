@@ -1,0 +1,43 @@
+---
+title: "RF004 - Alterar Jogador (CRUD de 1 tabela - Update)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T17 Editar perfil<br/>jogadores.html
+    participant S as «script»<br/>jogadores.js
+    participant R as «route»<br/>jogador-routes.js
+    participant C as «controller»<br/>jogador-controller.js
+    participant SV as «service»<br/>jogador-service.js
+    participant H as «util»<br/>senha.js
+    participant M as «model»<br/>jogador.js
+    participant RP as «repository»<br/>jogador-repository-firestore.js
+    participant DB as «database»<br/>Firestore: jogadores
+
+    U->>T: altera foto, nome, apelido ou senha e clica em "Salvar"
+    T->>S: onSalvar(formulario)
+    S->>S: validarFormulario(dados)
+    S->>R: fetch PATCH /api/jogadores/:id {nome, apelido, fotoUrl, senha}
+    R->>C: alterar(req, res)
+    C->>SV: alterarJogador(id, dados)
+    SV->>RP: buscarPorId(id)
+    RP->>DB: doc("jogadores/" + id).get()
+    DB-->>RP: documento
+    RP-->>SV: jogador atual
+    SV->>RP: buscarPorApelido(novoApelido)
+    RP->>DB: where("apelido", "==", novoApelido).get()
+    DB-->>RP: nenhum documento
+    RP-->>SV: null (apelido livre)
+    SV->>H: gerarHashSenha(novaSenha)
+    H-->>SV: novo senha_hash
+    SV->>RP: atualizar(id, alteracoes)
+    RP->>DB: doc("jogadores/" + id).update(alteracoes)
+    DB-->>RP: ok
+    RP-->>SV: jogador atualizado
+    SV->>M: paraRespostaPublica(jogador)
+    M-->>SV: jogador sem senha_hash
+    SV-->>C: jogador
+    C-->>R: res.status(200).json(jogador)
+    R-->>S: 200 OK + JSON
+    S->>T: exibirMensagem("Perfil atualizado com sucesso!")
+    T-->>U: apresenta T07 Perfil do jogador

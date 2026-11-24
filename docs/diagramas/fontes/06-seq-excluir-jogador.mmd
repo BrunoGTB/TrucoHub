@@ -1,0 +1,39 @@
+---
+title: "RF005 - Excluir Jogador (CRUD de 1 tabela - Delete, exclusão lógica)"
+---
+sequenceDiagram
+    autonumber
+    actor U as Jogador
+    participant T as «view»<br/>T07 Perfil do jogador<br/>jogadores.html
+    participant S as «script»<br/>jogadores.js
+    participant R as «route»<br/>jogador-routes.js
+    participant C as «controller»<br/>jogador-controller.js
+    participant SV as «service»<br/>jogador-service.js
+    participant H as «util»<br/>senha.js
+    participant RP as «repository»<br/>jogador-repository-firestore.js
+    participant DB as «database»<br/>Firestore: jogadores
+
+    U->>T: clica em "Excluir conta"
+    T->>S: onExcluir()
+    S->>T: abrirDialogoConfirmacao()
+    T-->>U: "Esta ação não pode ser desfeita. Digite sua senha para confirmar."
+    U->>T: informa a senha e confirma
+    T->>S: onConfirmarExclusao(senha)
+    S->>R: fetch DELETE /api/jogadores/:id {senha}
+    R->>C: excluir(req, res)
+    C->>SV: excluirJogador(id, senha)
+    SV->>RP: buscarPorId(id)
+    RP->>DB: doc("jogadores/" + id).get()
+    DB-->>RP: documento
+    RP-->>SV: jogador
+    SV->>H: verificarSenha(senha, jogador.senha_hash)
+    H-->>SV: true
+    SV->>RP: atualizar(id, {data_exclusao: agora})
+    RP->>DB: doc("jogadores/" + id).update({data_exclusao})
+    DB-->>RP: ok
+    RP-->>SV: ok
+    SV-->>C: ok
+    C-->>R: res.status(204).send()
+    R-->>S: 204 No Content
+    S->>T: encerrarSessao() e exibirMensagem("Conta excluída.")
+    T-->>U: apresenta T01 Entrar
