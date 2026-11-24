@@ -13,6 +13,8 @@ const MENSAGEM_FALHA_CONEXAO = 'Não foi possível falar com o servidor. Tente n
 
 const elementoMensagem = document.querySelector('#mensagem');
 const formCadastro = document.querySelector('#form-cadastro');
+const formBusca = document.querySelector('#form-busca');
+const listaJogadores = document.querySelector('#lista-jogadores');
 
 /**
  * Faz uma requisição à API e devolve o JSON da resposta.
@@ -65,13 +67,47 @@ function lerFormulario(formulario) {
   return Object.fromEntries(new FormData(formulario));
 }
 
+/**
+ * Busca jogadores e mostra a lista (RF003).
+ * @param {string} [texto]
+ */
+async function buscarJogadores(texto = '') {
+  const jogadores = await chamarApi(`?busca=${encodeURIComponent(texto)}`);
+  listaJogadores.replaceChildren();
+  if (jogadores.length === 0) {
+    const itemVazio = document.createElement('li');
+    itemVazio.textContent = 'Nenhum jogador encontrado.';
+    listaJogadores.append(itemVazio);
+    return;
+  }
+  for (const jogador of jogadores) {
+    const item = document.createElement('li');
+    const descricao = document.createElement('span');
+    descricao.textContent = `${jogador.nome} (${jogador.apelido})`;
+    item.append(descricao);
+    listaJogadores.append(item);
+  }
+}
+
 formCadastro.addEventListener('submit', async (evento) => {
   evento.preventDefault();
   try {
     await chamarApi('', { metodo: 'POST', corpo: lerFormulario(formCadastro) });
     formCadastro.reset();
     exibirMensagem('Conta criada com sucesso!', 'sucesso');
+    await buscarJogadores();
   } catch (erro) {
     exibirMensagem(erro.message, 'erro');
   }
 });
+
+formBusca.addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  try {
+    await buscarJogadores(lerFormulario(formBusca).busca);
+  } catch (erro) {
+    exibirMensagem(erro.message, 'erro');
+  }
+});
+
+buscarJogadores().catch((erro) => exibirMensagem(erro.message, 'erro'));
