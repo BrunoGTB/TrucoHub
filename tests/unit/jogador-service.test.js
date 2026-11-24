@@ -6,6 +6,7 @@ import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { JogadorService, MENSAGENS } from '../../src/backend/services/jogador-service.js';
 import { JogadorRepositoryMemoria } from '../../src/backend/repositories/jogador-repository-memoria.js';
+import { STATUS } from '../../src/backend/models/jogador.js';
 
 const SENHA_VALIDA = 'segredo123';
 
@@ -84,6 +85,31 @@ describe('JogadorService', () => {
     it('rejeita e-mail em formato inválido', async () => {
       await assert.rejects(service.cadastrarJogador(dadosCadastro({ email: 'maria.com' })), {
         message: MENSAGENS.EMAIL_INVALIDO
+      });
+    });
+  });
+
+  describe('buscarJogadores e consultarJogador (RF003)', () => {
+    it('busca por parte do nome ou do apelido, ignorando acentos', async () => {
+      await service.cadastrarJogador(dadosCadastro({ nome: 'João Pereira', apelido: 'zap', email: 'j@x.com' }));
+      await service.cadastrarJogador(dadosCadastro({ nome: 'Ana Lima', apelido: 'espadilha', email: 'a@x.com' }));
+      assert.deepEqual((await service.buscarJogadores('joao')).map((j) => j.nome), ['João Pereira']);
+      assert.deepEqual((await service.buscarJogadores('@espa')).map((j) => j.nome), ['Ana Lima']);
+      assert.equal((await service.buscarJogadores('')).length, 2);
+    });
+
+    it('não mostra jogador banido na busca (RF003.4)', async () => {
+      const jogador = await service.cadastrarJogador(dadosCadastro());
+      await repository.atualizar(jogador.id, { status: STATUS.BANIDO });
+      assert.equal((await service.buscarJogadores('maria')).length, 0);
+    });
+
+    it('consulta pelo id e retorna 404 para id inexistente', async () => {
+      const jogador = await service.cadastrarJogador(dadosCadastro());
+      assert.equal((await service.consultarJogador(jogador.id)).nome, 'Maria Souza');
+      await assert.rejects(service.consultarJogador('id-inexistente'), {
+        message: MENSAGENS.JOGADOR_NAO_ENCONTRADO,
+        statusHttp: 404
       });
     });
   });

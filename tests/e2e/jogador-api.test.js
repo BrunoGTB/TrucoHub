@@ -35,6 +35,19 @@ describe('API /api/jogadores', () => {
     return { status: resposta.status, corpo: texto ? JSON.parse(texto) : null };
   }
 
+  /** Cadastra um jogador válido pela API e devolve o id gerado. */
+  async function cadastrarJogador(apelido) {
+    const resposta = await requisitar('', 'POST', {
+      nome: 'Carlos',
+      apelido,
+      email: `${apelido}@exemplo.com`,
+      senha: 'senhaForte1',
+      confirmacaoSenha: 'senhaForte1'
+    });
+    assert.equal(resposta.status, 201);
+    return resposta.corpo.id;
+  }
+
   it('cadastra o jogador e responde 201 com o apelido normalizado (RF002)', async () => {
     const resposta = await requisitar('', 'POST', {
       nome: 'Carlos',
@@ -61,6 +74,21 @@ describe('API /api/jogadores', () => {
       body: '{ invalido'
     });
     assert.equal(resposta.status, 400);
+  });
+
+  it('busca pelo nome e consulta pelo id (RF003)', async () => {
+    const id = await cadastrarJogador('busca_rf003');
+
+    const busca = await requisitar('?busca=busca_rf');
+    assert.equal(busca.status, 200);
+    assert.equal(busca.corpo.length, 1);
+
+    const consulta = await requisitar(`/${id}`);
+    assert.equal(consulta.status, 200);
+    assert.equal(consulta.corpo.apelido, '@busca_rf003');
+
+    const inexistente = await requisitar('/id-inexistente');
+    assert.equal(inexistente.status, 404);
   });
 
 });
