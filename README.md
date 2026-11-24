@@ -202,6 +202,7 @@ TrucoHub/
 │       └── Documento_de_Requisitos_TrucoHub.pdf
 │
 ├── Padrões Adotados/
+│   ├── Boas Práticas de Codificação.md
 │   ├── Regras de Verificação e Analise de Requisitos.md
 │   └── registros/
 │       └── verificacao-2026-11-08.md
@@ -240,7 +241,7 @@ TrucoHub/
 
 - **`docs/`**: documentação do projeto.
   - **`requisitos/`**: documento de requisitos (casos de uso, requisitos não funcionais, rastreabilidade com o protótipo e dicionário de dados).
-- **`Padrões Adotados/`**: padrões da equipe, como as regras de verificação e análise de requisitos.
+- **`Padrões Adotados/`**: padrões da equipe, como as regras de verificação e análise de requisitos e as [boas práticas de codificação](Padrões%20Adotados/Boas%20Práticas%20de%20Codificação.md).
   - **`registros/`**: um arquivo por verificação dos requisitos, nomeado `verificacao-AAAA-MM-DD.md` com a data em que foi feita. Cada registro traz o resultado de cada requisito nas regras e o nome do revisor, que deve ser um integrante diferente do autor dos requisitos.
 - **`public/`**: arquivos estáticos utilizados pela aplicação, como ícones e imagens.
 - **`src/`**: contém o código-fonte principal do sistema.
@@ -357,7 +358,24 @@ Antes de cada commit, confira com `git status` se nenhum arquivo dessas categori
 
 ---
 
-## 7. EQUIPE DE DESENVOLVIMENTO
+## 7. BOAS PRÁTICAS DE CODIFICAÇÃO
+
+A equipe segue 8 regras de codificação, descritas com exemplos no documento [Boas Práticas de Codificação](Padrões%20Adotados/Boas%20Práticas%20de%20Codificação.md):
+
+| ID | Regra |
+|---|---|
+| BP01 | Padrão de notação: camelCase para variáveis e funções, PascalCase para classes, UPPER_SNAKE_CASE para constantes, kebab-case para arquivos. |
+| BP02 | Documentação com JSDoc em toda função exportada, citando o requisito (`@see RFxxx`); comentários explicam o porquê. |
+| BP03 | Funções pequenas (até 30 linhas e 3 parâmetros) com uma única responsabilidade. |
+| BP04 | Separação em camadas (routes, controllers, services, models), seguindo SOLID. |
+| BP05 | Sem números e textos mágicos: valores do negócio em constantes nomeadas. |
+| BP06 | Tratamento de erros explícito, com `async`/`await`, `try`/`catch` e mensagens em português. |
+| BP07 | Não repetir código (DRY). |
+| BP08 | Formatação padronizada: 2 espaços, ponto e vírgula, aspas simples, `const`/`let` e `===`. |
+
+---
+
+## 8. EQUIPE DE DESENVOLVIMENTO
 
 Projeto desenvolvido por:
 
