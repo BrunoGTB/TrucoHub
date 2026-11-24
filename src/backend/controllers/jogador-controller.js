@@ -49,4 +49,13 @@ export class JogadorController {
     res.status(STATUS_SUCESSO.OK).json(jogador);
   };
 
+  /**
+   * PATCH /api/jogadores/:id
+   * @see RF004
+   */
+  alterar = async (req, res) => {
+    const jogador = await this.#service.alterarJogador(req.params.id, req.body);
+    res.status(STATUS_SUCESSO.OK).json(jogador);
+  };
+
 }

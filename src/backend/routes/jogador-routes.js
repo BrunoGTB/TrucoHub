@@ -21,5 +21,6 @@ export function criarJogadorRoutes(controller) {
   router.post('/', controller.cadastrar);
   router.get('/', controller.listar);
   router.get('/:id', controller.consultar);
+  router.patch('/:id', controller.alterar);
   return router;
 }

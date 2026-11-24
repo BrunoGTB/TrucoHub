@@ -31,6 +31,9 @@ export const MENSAGENS = Object.freeze({
   NOME_LONGO: `O nome pode ter no máximo ${LIMITES.NOME_MAX} caracteres.`,
   APELIDO_LONGO: `O apelido pode ter no máximo ${LIMITES.APELIDO_MAX} caracteres.`,
   EMAIL_LONGO: `O e-mail pode ter no máximo ${LIMITES.EMAIL_MAX} caracteres.`,
+  FOTO_INVALIDA: 'Informe um endereço de foto válido (http ou https).',
+  EMAIL_NAO_ALTERAVEL: 'O e-mail não pode ser alterado.',
+  NADA_PARA_ALTERAR: 'Informe ao menos um campo para alterar.',
   JOGADOR_NAO_ENCONTRADO: 'Jogador não encontrado.'
 });
 
@@ -39,6 +42,9 @@ const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Apelido: "@" seguido de letras, números, ponto ou sublinhado. */
 const REGEX_APELIDO = /^@[\p{L}\p{N}._]+$/u;
+
+/** Protocolos aceitos no endereço da foto. */
+const PROTOCOLOS_FOTO = ['http:', 'https:'];
 
 /**
  * Remove acentos e passa para minúsculas, para a busca ignorar os dois.
@@ -145,6 +151,48 @@ export class JogadorService {
   }
 
   /**
+   * Altera nome, apelido, foto e/ou senha. O e-mail não pode ser alterado.
+   * Só os campos enviados são alterados.
+   * @param {string} id
+   * @param {{ nome?: string, apelido?: string, fotoUrl?: string|null, senha?: string, confirmacaoSenha?: string, email?: string }} dados
+   * @returns {Promise<object>} Jogador atualizado, sem dados sensíveis.
+   * @throws {ErroValidacao | ErroConflito | ErroNaoEncontrado}
+   * @see RF004
+   */
+  async alterarJogador(id, dados) {
+    const { nome, apelido, fotoUrl, senha, confirmacaoSenha, email } = dados ?? {};
+    const jogadorAtual = await this.#obterJogadorExistente(id);
+
+    if (email !== undefined) {
+      throw new ErroValidacao(MENSAGENS.EMAIL_NAO_ALTERAVEL);
+    }
+
+    const alteracoes = {};
+    if (nome !== undefined) {
+      alteracoes.nome = this.#validarNome(nome);
+    }
+    if (apelido !== undefined) {
+      const apelidoNormalizado = this.#validarApelido(apelido);
+      await this.#garantirApelidoDisponivel(apelidoNormalizado, jogadorAtual.id);
+      alteracoes.apelido = apelidoNormalizado;
+    }
+    if (fotoUrl !== undefined) {
+      alteracoes.fotoUrl = this.#validarFotoUrl(fotoUrl);
+    }
+    if (senha !== undefined) {
+      this.#validarSenha(senha, confirmacaoSenha);
+      alteracoes.senhaHash = await gerarHashSenha(senha);
+    }
+
+    if (Object.keys(alteracoes).length === 0) {
+      throw new ErroValidacao(MENSAGENS.NADA_PARA_ALTERAR);
+    }
+
+    const jogadorAtualizado = await this.#repository.atualizar(jogadorAtual.id, alteracoes);
+    return paraRespostaPublica(jogadorAtualizado);
+  }
+
+  /**
    * Busca o jogador e lança erro se ele não existir ou estiver excluído.
    * @param {string} id
    */
@@ -221,4 +269,25 @@ export class JogadorService {
     }
   }
 
+  /**
+   * Aceita null ou string vazia (remove a foto) ou um endereço http/https.
+   * @param {string|null} fotoUrl
+   * @returns {string|null}
+   */
+  #validarFotoUrl(fotoUrl) {
+    if (estaVazio(fotoUrl)) {
+      return null;
+    }
+    const endereco = String(fotoUrl).trim();
+    let protocolo;
+    try {
+      protocolo = new URL(endereco).protocol;
+    } catch {
+      throw new ErroValidacao(MENSAGENS.FOTO_INVALIDA);
+    }
+    if (!PROTOCOLOS_FOTO.includes(protocolo) || endereco.length > LIMITES.FOTO_URL_MAX) {
+      throw new ErroValidacao(MENSAGENS.FOTO_INVALIDA);
+    }
+    return endereco;
+  }
 }
