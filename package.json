@@ -5,11 +5,11 @@
   "type": "module",
   "main": "src/backend/server.js",
   "engines": {
-    "node": ">=20.6"
+    "node": ">=22.9"
   },
   "scripts": {
-    "start": "node src/backend/server.js",
-    "dev": "node --watch src/backend/server.js",
+    "start": "node --env-file-if-exists=.env src/backend/server.js",
+    "dev": "node --env-file-if-exists=.env --watch src/backend/server.js",
     "test": "node --test tests/"
   },
   "dependencies": {
