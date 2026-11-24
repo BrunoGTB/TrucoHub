@@ -19,5 +19,7 @@ import { Router } from 'express';
 export function criarJogadorRoutes(controller) {
   const router = Router();
   router.post('/', controller.cadastrar);
+  router.get('/', controller.listar);
+  router.get('/:id', controller.consultar);
   return router;
 }

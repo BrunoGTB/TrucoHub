@@ -9,10 +9,12 @@ import {
   LIMITES,
   PREFIXO_APELIDO,
   criarJogador,
+  estaExcluido,
   paraRespostaPublica
 } from '../models/jogador.js';
 import {
   ErroConflito,
+  ErroNaoEncontrado,
   ErroValidacao
 } from '../errors/app-error.js';
 import { gerarHashSenha } from '../utils/senha.js';
@@ -29,6 +31,7 @@ export const MENSAGENS = Object.freeze({
   NOME_LONGO: `O nome pode ter no máximo ${LIMITES.NOME_MAX} caracteres.`,
   APELIDO_LONGO: `O apelido pode ter no máximo ${LIMITES.APELIDO_MAX} caracteres.`,
   EMAIL_LONGO: `O e-mail pode ter no máximo ${LIMITES.EMAIL_MAX} caracteres.`,
+  JOGADOR_NAO_ENCONTRADO: 'Jogador não encontrado.'
 });
 
 /** Formato simples de e-mail: algo@dominio.tld, sem espaços. */
@@ -36,6 +39,15 @@ const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Apelido: "@" seguido de letras, números, ponto ou sublinhado. */
 const REGEX_APELIDO = /^@[\p{L}\p{N}._]+$/u;
+
+/**
+ * Remove acentos e passa para minúsculas, para a busca ignorar os dois.
+ * @param {string} texto
+ * @returns {string}
+ */
+function normalizarParaBusca(texto) {
+  return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+}
 
 /**
  * Garante o prefixo "@" no apelido e remove espaços nas pontas.
@@ -100,6 +112,48 @@ export class JogadorService {
     });
     const jogadorSalvo = await this.#repository.inserir(novoJogador);
     return paraRespostaPublica(jogadorSalvo);
+  }
+
+  /**
+   * Busca jogadores ativos cujo nome ou apelido contenha o texto informado.
+   * Sem texto, lista todos os ativos. Banidos e excluídos não aparecem (RF003.4).
+   * @param {string} [texto] Parte do nome ou do apelido.
+   * @returns {Promise<object[]>} Jogadores ordenados pelo nome.
+   * @see RF003
+   */
+  async buscarJogadores(texto = '') {
+    const termo = normalizarParaBusca(texto.trim());
+    const ativos = await this.#repository.listarAtivos();
+    return ativos
+      .filter((jogador) =>
+        normalizarParaBusca(jogador.nome).includes(termo) ||
+        normalizarParaBusca(jogador.apelido).includes(termo))
+      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+      .map(paraRespostaPublica);
+  }
+
+  /**
+   * Consulta o perfil de um jogador pelo id.
+   * @param {string} id
+   * @returns {Promise<object>} Jogador sem dados sensíveis.
+   * @throws {ErroNaoEncontrado} Jogador inexistente ou excluído.
+   * @see RF003
+   */
+  async consultarJogador(id) {
+    const jogador = await this.#obterJogadorExistente(id);
+    return paraRespostaPublica(jogador);
+  }
+
+  /**
+   * Busca o jogador e lança erro se ele não existir ou estiver excluído.
+   * @param {string} id
+   */
+  async #obterJogadorExistente(id) {
+    const jogador = await this.#repository.buscarPorId(id);
+    if (!jogador || estaExcluido(jogador)) {
+      throw new ErroNaoEncontrado(MENSAGENS.JOGADOR_NAO_ENCONTRADO);
+    }
+    return jogador;
   }
 
   /**
