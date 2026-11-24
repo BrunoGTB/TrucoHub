@@ -253,7 +253,111 @@ TrucoHub/
 
 ---
 
-## 6. EQUIPE DE DESENVOLVIMENTO
+## 6. REGRAS DE USO DO GIT
+
+Estas regras valem para todos os integrantes e organizam o trabalho em conjunto no repositório.
+
+### 6.1. Estratégia de branches
+
+A `main` guarda sempre a versão estável, que é publicada no Netlify. Ninguém faz commit direto na `main`: todo trabalho é feito em uma branch própria e entra por Pull Request.
+
+| Branch | Uso | Exemplo |
+|---|---|---|
+| `main` | Versão estável e publicada. Só recebe Pull Requests aprovados. | `main` |
+| `feat/<descricao>` | Nova funcionalidade. | `feat/crud-jogador` |
+| `fix/<descricao>` | Correção de erro. | `fix/placar-acima-de-12` |
+| `docs/<descricao>` | Documentação e diagramas. | `docs/diagrama-de-classes` |
+| `refactor/<descricao>` | Melhoria de código sem mudar o comportamento. | `refactor/services-partida` |
+| `test/<descricao>` | Criação ou ajuste de testes. | `test/registrar-pontos` |
+
+**Regras dos nomes:** tudo minúsculo, sem acento, palavras separadas por hífen (`-`), com até 5 palavras. Isso vale também para branches criadas por ferramentas automáticas.
+
+**Fluxo de trabalho:**
+
+1. Atualize a `main` local: `git checkout main && git pull`.
+2. Crie a branch da tarefa: `git checkout -b feat/crud-jogador`.
+3. Faça commits pequenos seguindo o padrão da seção 6.2.
+4. Envie a branch: `git push -u origin feat/crud-jogador`.
+5. Abra um Pull Request para a `main`, com o número da tarefa da sprint (ex.: `#24`) na descrição, e mova a tarefa para **Em revisão** no Kanban.
+6. O outro integrante revisa usando o checklist das [Boas Práticas de Codificação](Padrões%20Adotados/Boas%20Práticas%20de%20Codificação.md#3-checklist-de-revisão-do-pull-request) e aprova.
+7. Depois do merge, apague a branch e mova a tarefa para **Feito** no Kanban.
+
+### 6.2. Padrão de mensagens de commit
+
+As mensagens seguem o padrão [Padrões de Commits](https://github.com/iuricode/padroes-de-commits), baseado no *Conventional Commits*:
+
+```text
+<tipo>(<escopo opcional>): <descrição>
+
+<corpo opcional: o que mudou e por quê>
+```
+
+| Tipo | Quando usar |
+|---|---|
+| `feat` | Nova funcionalidade. |
+| `fix` | Correção de erro. |
+| `docs` | Mudança só na documentação (README, requisitos, diagramas, comentários). |
+| `style` | Formatação do código (espaços, ponto e vírgula), sem mudar a lógica. |
+| `refactor` | Mudança no código que não altera o comportamento. |
+| `test` | Criação ou alteração de testes. |
+| `build` | Build, deploy e dependências (`package.json`, `netlify.toml`). |
+| `perf` | Melhoria de desempenho. |
+| `ci` | Integração contínua (GitHub Actions). |
+| `chore` | Tarefas que não entram no código do sistema (ex.: `.gitignore`). |
+| `cleanup` | Remoção de código comentado ou trechos desnecessários. |
+| `remove` | Remoção de arquivos, pastas ou funcionalidades obsoletas. |
+
+**Regras da mensagem:**
+
+1. Tipo e escopo em minúsculo; o escopo é a parte do sistema afetada (`jogador`, `partida`, `readme`, `diagramas`).
+2. Descrição em português, começando com verbo no presente e em minúsculo (`adiciona`, `corrige`, `remove`), sem ponto final.
+3. Descrição com até 72 caracteres.
+4. Um commit trata de um único assunto. Se a descrição precisar de "e", provavelmente são dois commits.
+
+**Exemplos:**
+
+```text
+feat(jogador): adiciona cadastro de jogador
+fix(partida): impede placar acima de 12 pontos
+docs(readme): adiciona regras de uso do git
+build: configura deploy no Netlify
+chore: atualiza extensões ignoradas no .gitignore
+```
+
+### 6.3. Onde fica cada coisa
+
+| Conteúdo | Pasta |
+|---|---|
+| Código do frontend (HTML, CSS, JavaScript das telas) | `src/frontend/` |
+| Código do backend (rotas, controllers, services, models) | `src/backend/` |
+| Configuração da aplicação (Firebase, variáveis) | `src/config/` |
+| Imagens e ícones | `public/assets/` |
+| Testes automatizados | `tests/` |
+| Documento de requisitos | `docs/requisitos/` |
+| Diagramas (classes, pacotes, sequência, implantação) | `docs/diagramas/` |
+| Padrões da equipe (requisitos, codificação) | `Padrões Adotados/` |
+
+Documentação não fica dentro de `src/`, e código não fica dentro de `docs/`. Diagramas são versionados no formato editável (ex.: `.astah`, `.drawio`) e também em imagem (`.png`) ou `.pdf`, para serem vistos no GitHub.
+
+### 6.4. Arquivos ignorados (`.gitignore`)
+
+O arquivo [`.gitignore`](.gitignore) impede que entrem no repositório arquivos gerados, instalados ou pessoais. Os principais grupos são:
+
+| Grupo | Exemplos | Motivo |
+|---|---|---|
+| Dependências | `node_modules/` | São recriadas com `npm install`. |
+| Build e deploy | `dist/`, `.netlify/` | São gerados pelo Netlify a partir de `src/`. |
+| Firebase | `.firebase/`, `firebase-debug.log` | Cache e logs locais do Firebase CLI. |
+| Credenciais | `.env`, `firebase-service-account.json`, `*.pem` | **Nunca** podem ficar públicas. Use o `.env.example` como modelo. |
+| Logs e testes | `*.log`, `coverage/` | Resultados gerados ao rodar o projeto. |
+| Editores e sistema | `.vscode/*`, `.idea/`, `.DS_Store`, `Thumbs.db` | Configurações pessoais de cada máquina. |
+| Temporários | `*.tmp`, `*.bak`, `*~`, `~$*` | Arquivos de backup e de bloqueio do Word. |
+
+Antes de cada commit, confira com `git status` se nenhum arquivo dessas categorias está sendo enviado.
+
+---
+
+## 7. EQUIPE DE DESENVOLVIMENTO
 
 Projeto desenvolvido por:
 
