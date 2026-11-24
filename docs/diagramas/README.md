@@ -1,6 +1,6 @@
 # Diagramas de design do TrucoHub (Sprint 2)
 
-Diagramas dos itens #19 (classes de domínio e pacotes) e #20 (sequência) da Sprint 2.
+Diagramas dos itens #19 (classes de domínio e pacotes), #20 (sequência) e #25 (implantação) da Sprint 2.
 
 ## Índice
 
@@ -16,6 +16,7 @@ Diagramas dos itens #19 (classes de domínio e pacotes) e #20 (sequência) da Sp
 | [08-seq-consultar-partida](#08-seq-consultar-partida) | Sequência: RF013 Consultar Partida (CRUD 3 tabelas, R) | #20 |
 | [09-seq-alterar-partida](#09-seq-alterar-partida) | Sequência: RF014 Alterar Partida (CRUD 3 tabelas, U) | #20 |
 | [10-seq-excluir-partida](#10-seq-excluir-partida) | Sequência: RF015 Excluir Partida (CRUD 3 tabelas, D) | #20 |
+| [11-implantacao](#11-implantacao) | Diagrama de Implantação | #25 |
 
 ## Decisões de modelagem
 
@@ -26,6 +27,7 @@ Diagramas dos itens #19 (classes de domínio e pacotes) e #20 (sequência) da Sp
 - **CRUD de 1 tabela:** Jogador (RF002 a RF005). A exclusão é lógica: preenche `data_exclusao`.
 - **CRUD de 3 tabelas:** Partida, com Dupla e Jogador (RF012 a RF015). `convite_partida` aparece como tabela intermediária.
 - **Diagramas de sequência simplificados:** mostram só o fluxo principal, sem `loop` nem `alt`, como pede a sprint.
+- **Implantação:** front-end estático na CDN do Netlify (NF012), API Node.js em Netlify Functions e banco no Cloud Firestore, tudo por HTTPS com TLS 1.2+ (NF009).
 
 <a id="01-classes-dominio"></a>
 
@@ -699,4 +701,42 @@ sequenceDiagram
     R-->>S: 204 No Content
     S->>T: removerDaLista(idPartida) e exibirMensagem("Partida excluída.")
     T-->>U: apresenta T11 Partidas atualizada
+```
+
+<a id="11-implantacao"></a>
+
+## Diagrama de Implantação
+
+PNG: [imagens/11-implantacao.png](imagens/11-implantacao.png)
+
+```mermaid
+---
+title: "TrucoHub - Diagrama de Implantação"
+---
+flowchart LR
+    subgraph CLIENTE["«device» Dispositivo do usuário"]
+        FRONTART["<b>«execution environment» Navegador web</b><br/><i>Chrome/Firefox/Edge 120+ (Windows 10+), Safari 17+ (iOS 17+)</i><br/>───────────<br/>«artifact» front-end<br/>index.html, jogadores.html, partidas.html<br/>style.css, jogadores.js, partidas.js"]
+    end
+
+    subgraph NETLIFY["«device» Servidor Netlify (nuvem)"]
+        direction TB
+        DIST["<b>«execution environment» Netlify CDN</b><br/>───────────<br/>«artifact» dist/<br/>páginas, css, js e assets"]
+        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config/firebase.js"]
+    end
+
+    subgraph GOOGLE["«device» Servidor Google Cloud (Firebase)"]
+        DB[("<b>«execution environment» Cloud Firestore</b><br/>«database» coleções:<br/>jogadores, amizades, duplas, partidas,<br/>convites_partida, lancamentos")]
+    end
+
+    GIT["<b>«device» Computador do desenvolvedor</b><br/>───────────<br/>«artifact» repositório local (Git)<br/>Node.js 26, Firebase CLI 15"]
+    REPO["<b>«device» GitHub</b><br/>───────────<br/>«artifact» BrunoGTB/TrucoHub"]
+
+    FRONTART <-->|"HTTPS (TLS 1.2+)<br/>páginas estáticas"| DIST
+    FRONTART <-->|"HTTPS (TLS 1.2+)<br/>REST/JSON /api/*"| API
+    API <-->|"HTTPS / gRPC<br/>Firebase SDK"| DB
+    GIT -->|"git push (HTTPS)"| REPO
+    REPO -->|"webhook: build e deploy<br/>(netlify.toml)"| DIST
+
+    classDef art fill:#fff8dc,stroke:#8a6d3b,color:#222
+    class FRONTART,DIST,API,GIT,REPO art
 ```
