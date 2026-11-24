@@ -114,4 +114,20 @@ describe('JogadorService', () => {
     });
   });
 
+  describe('excluirJogador (RF005)', () => {
+    it('exige a senha (RF005.1)', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await assert.rejects(service.excluirJogador(id, ''), { message: MENSAGENS.SENHA_OBRIGATORIA_EXCLUSAO });
+      await assert.rejects(service.excluirJogador(id, 'senhaErrada'), { statusHttp: 401 });
+    });
+
+    it('faz exclusão lógica: o registro fica no banco com data_exclusao (RF005.3)', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await service.excluirJogador(id, SENHA_VALIDA);
+      const registro = await repository.buscarPorId(id);
+      assert.ok(registro.dataExclusao instanceof Date);
+      await assert.rejects(service.consultarJogador(id), { statusHttp: 404 });
+      assert.equal((await service.buscarJogadores()).length, 0);
+    });
+  });
 });

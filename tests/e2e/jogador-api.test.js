@@ -91,4 +91,16 @@ describe('API /api/jogadores', () => {
     assert.equal(inexistente.status, 404);
   });
 
+  it('exclui a conta com a senha e deixa de encontrar o jogador (RF005)', async () => {
+    const id = await cadastrarJogador('exclui_rf005');
+
+    const senhaErrada = await requisitar(`/${id}`, 'DELETE', { senha: 'outraSenha1' });
+    assert.equal(senhaErrada.status, 401);
+
+    const exclusao = await requisitar(`/${id}`, 'DELETE', { senha: 'senhaForte1' });
+    assert.equal(exclusao.status, 204);
+
+    const consultaAposExclusao = await requisitar(`/${id}`);
+    assert.equal(consultaAposExclusao.status, 404);
+  });
 });
