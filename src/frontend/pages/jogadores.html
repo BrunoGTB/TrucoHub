@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogadores | TrucoHub</title>
+  <link rel="stylesheet" href="css/jogadores.css">
+  <script type="module" src="js/jogadores.js"></script>
+</head>
+<body>
+  <header class="cabecalho">
+    <h1>TrucoHub · Jogadores</h1>
+    <p>CRUD da conta do jogador (RF002 a RF005).</p>
+  </header>
+
+  <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+
+  <main class="conteudo">
+    <!-- RF002 – Cadastrar Jogador -->
+    <section class="cartao" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro">Criar conta</h2>
+      <form id="form-cadastro" novalidate>
+        <label>Nome <input name="nome" maxlength="80" autocomplete="name" required></label>
+        <label>Apelido <input name="apelido" maxlength="30" placeholder="@seuapelido" required></label>
+        <label>E-mail <input name="email" type="email" maxlength="120" autocomplete="email" required></label>
+        <label>Senha <input name="senha" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>Confirmar senha <input name="confirmacaoSenha" type="password" minlength="8" autocomplete="new-password" required></label>
+        <button type="submit">Criar conta</button>
+      </form>
+    </section>
+
+  </main>
+</body>
+</html>
