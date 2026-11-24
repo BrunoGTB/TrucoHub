@@ -15,9 +15,10 @@ import {
 import {
   ErroConflito,
   ErroNaoEncontrado,
+  ErroSenhaIncorreta,
   ErroValidacao
 } from '../errors/app-error.js';
-import { gerarHashSenha } from '../utils/senha.js';
+import { gerarHashSenha, verificarSenha } from '../utils/senha.js';
 
 /** Mensagens exibidas ao usuário. */
 export const MENSAGENS = Object.freeze({
@@ -34,6 +35,7 @@ export const MENSAGENS = Object.freeze({
   FOTO_INVALIDA: 'Informe um endereço de foto válido (http ou https).',
   EMAIL_NAO_ALTERAVEL: 'O e-mail não pode ser alterado.',
   NADA_PARA_ALTERAR: 'Informe ao menos um campo para alterar.',
+  SENHA_OBRIGATORIA_EXCLUSAO: 'Digite sua senha para confirmar.',
   JOGADOR_NAO_ENCONTRADO: 'Jogador não encontrado.'
 });
 
@@ -190,6 +192,30 @@ export class JogadorService {
 
     const jogadorAtualizado = await this.#repository.atualizar(jogadorAtual.id, alteracoes);
     return paraRespostaPublica(jogadorAtualizado);
+  }
+
+  /**
+   * Exclui a conta do jogador, após confirmar a senha (RF005.1).
+   * A exclusão é lógica: data_exclusao é preenchida e o registro continua no banco,
+   * para as partidas finalizadas manterem o histórico (RF005.3).
+   *
+   * Pendente para quando existir a entidade Partida: impedir a exclusão de quem
+   * participa de partida agendada ou em andamento (RF005.2).
+   * @param {string} id
+   * @param {string} senha Senha atual do jogador.
+   * @returns {Promise<void>}
+   * @throws {ErroValidacao | ErroSenhaIncorreta | ErroNaoEncontrado}
+   * @see RF005
+   */
+  async excluirJogador(id, senha) {
+    if (estaVazio(senha)) {
+      throw new ErroValidacao(MENSAGENS.SENHA_OBRIGATORIA_EXCLUSAO);
+    }
+    const jogador = await this.#obterJogadorExistente(id);
+    if (!(await verificarSenha(senha, jogador.senhaHash))) {
+      throw new ErroSenhaIncorreta();
+    }
+    await this.#repository.atualizar(jogador.id, { dataExclusao: new Date() });
   }
 
   /**

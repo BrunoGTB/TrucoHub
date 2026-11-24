@@ -9,7 +9,8 @@
 /** Status HTTP de sucesso usados pelo controller. */
 const STATUS_SUCESSO = Object.freeze({
   OK: 200,
-  CRIADO: 201
+  CRIADO: 201,
+  SEM_CONTEUDO: 204
 });
 
 export class JogadorController {
@@ -58,4 +59,12 @@ export class JogadorController {
     res.status(STATUS_SUCESSO.OK).json(jogador);
   };
 
+  /**
+   * DELETE /api/jogadores/:id  (corpo: { "senha": "..." })
+   * @see RF005
+   */
+  excluir = async (req, res) => {
+    await this.#service.excluirJogador(req.params.id, req.body?.senha);
+    res.status(STATUS_SUCESSO.SEM_CONTEUDO).end();
+  };
 }
