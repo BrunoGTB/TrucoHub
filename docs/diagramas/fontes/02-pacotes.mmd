@@ -1,0 +1,46 @@
+---
+title: "TrucoHub - Diagrama de Pacotes"
+---
+flowchart TB
+    subgraph TRUCOHUB["📦 TrucoHub"]
+        direction TB
+        subgraph FRONT["📦 src/frontend  (front-end)"]
+            direction LR
+            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, jogadores.html, partidas.html"]
+            JS["📁 js<br/><i>scripts das telas</i><br/>jogadores.js, partidas.js"]
+            CSS["📁 css<br/><i>estilos</i><br/>style.css"]
+        end
+        ASSETS["📁 public/assets<br/><i>ícones e imagens</i>"]
+        subgraph BACK["📦 src/backend  (back-end)"]
+            direction TB
+            ROUTES["📁 routes<br/>jogador-routes.js, partida-routes.js"]
+            CTRL["📁 controllers<br/>jogador-controller.js, partida-controller.js"]
+            SERV["📁 services<br/>jogador-service.js, partida-service.js"]
+            REPO["📁 repositories<br/>jogador-repository-firestore.js, dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
+            MODELS["📁 models<br/>jogador.js, dupla.js, partida.js, convite-partida.js"]
+            UTILS["📁 utils<br/>senha.js"]
+        end
+        CONFIG["📁 src/config<br/>firebase.js"]
+        TESTS["📁 tests<br/>unit, e2e"]
+    end
+    FIREBASE[["📦 Firebase SDK<br/><i>biblioteca externa</i>"]]
+
+    PAGES -.->|«use»| JS
+    PAGES -.->|«use»| CSS
+    PAGES -.->|«use»| ASSETS
+    JS -.->|«use» HTTP /api| ROUTES
+    ROUTES -.->|«import»| CTRL
+    CTRL -.->|«import»| SERV
+    SERV -.->|«import»| REPO
+    SERV -.->|«import»| MODELS
+    SERV -.->|«import»| UTILS
+    REPO -.->|«import»| MODELS
+    REPO -.->|«import»| CONFIG
+    CONFIG -.->|«import»| FIREBASE
+    TESTS -.->|«import»| SERV
+    TESTS -.->|«import»| REPO
+
+    classDef pkg fill:#fff8dc,stroke:#8a6d3b,color:#222
+    classDef ext fill:#eef3ff,stroke:#3b5998,color:#222
+    class PAGES,JS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
+    class FIREBASE ext

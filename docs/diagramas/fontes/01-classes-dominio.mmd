@@ -1,0 +1,146 @@
+---
+title: "TrucoHub - Diagrama de Classes de Domínio"
+---
+classDiagram
+    direction TB
+
+    class Conta {
+        <<abstract>>
+        -idJogador: int
+        -nome: string
+        -apelido: string
+        -email: string
+        -senhaHash: string
+        -fotoUrl: string
+        -status: StatusConta
+        -dataCadastro: DateTime
+        -dataExclusao: DateTime
+    }
+
+    class Jogador {
+        +enviarPedidoAmizade(destinatario: Jogador) Amizade
+        +formarDupla(parceiro: Jogador, nome: string) Dupla
+        +criarPartida(tipo: string, dataHora: DateTime) Partida
+    }
+
+    class Administrador {
+        +banirJogador(jogador: Jogador) void
+        +reativarJogador(jogador: Jogador) void
+        +excluirPartida(partida: Partida) void
+    }
+
+    class Amizade {
+        -idAmizade: int
+        -status: StatusAmizade
+        -dataPedido: DateTime
+        -dataResposta: DateTime
+        +aceitar() void
+    }
+
+    class Dupla {
+        -idDupla: int
+        -nome: string
+        -status: StatusDupla
+        -dataCriacao: DateTime
+        -dataExpiracao: DateTime
+        +ativar() void
+    }
+
+    class Partida {
+        <<abstract>>
+        -idPartida: int
+        -dataHoraAgendada: DateTime
+        -limitePontos: int = 12
+        -pontosA: int = 0
+        -pontosB: int = 0
+        -status: StatusPartida
+        -ladoVencedor: Lado
+        -dataHoraInicio: DateTime
+        -dataHoraFim: DateTime
+        +iniciar() void
+        +registrarPontos(lado: Lado, valor: int) Lancamento
+        +desfazerUltimoLancamento() void
+        +finalizar() void
+    }
+
+    class PartidaDuplas {
+        -tipo: string = "2x2"
+    }
+
+    class PartidaIndividual {
+        -tipo: string = "1x1"
+    }
+
+    class ConvitePartida {
+        -idConvite: int
+        -status: StatusConvite
+        -dataEnvio: DateTime
+        -dataExpiracao: DateTime
+        -dataResposta: DateTime
+        +aceitar() void
+        +recusar() void
+    }
+
+    class Lancamento {
+        -idLancamento: int
+        -lado: Lado
+        -valor: int
+        -ordem: int
+        -dataHora: DateTime
+    }
+
+    class StatusConta {
+        <<enumeration>>
+        ATIVO
+        BANIDO
+    }
+    class StatusAmizade {
+        <<enumeration>>
+        PENDENTE
+        ACEITA
+    }
+    class StatusDupla {
+        <<enumeration>>
+        PENDENTE
+        ATIVA
+    }
+    class StatusPartida {
+        <<enumeration>>
+        EM_ESPERA
+        AGENDADA
+        EM_ANDAMENTO
+        FINALIZADA
+        CANCELADA
+    }
+    class StatusConvite {
+        <<enumeration>>
+        PENDENTE
+        ACEITO
+        RECUSADO
+        EXPIRADO
+    }
+    class Lado {
+        <<enumeration>>
+        A
+        B
+    }
+
+    %% Herança
+    Conta <|-- Jogador
+    Conta <|-- Administrador
+    Partida <|-- PartidaDuplas
+    Partida <|-- PartidaIndividual
+
+    %% Associações com multiplicidades
+    Jogador "1" -- "0..*" Amizade : solicita
+    Jogador "1" -- "0..*" Amizade : recebe
+    Jogador "2" -- "0..*" Dupla : forma
+    Jogador "1" -- "0..*" Partida : cria
+    PartidaDuplas "0..*" -- "1" Dupla : lado A
+    PartidaDuplas "0..*" -- "0..1" Dupla : lado B
+    PartidaIndividual "0..*" -- "1" Jogador : lado A
+    PartidaIndividual "0..*" -- "0..1" Jogador : lado B
+    Partida "1" -- "0..*" ConvitePartida : gera
+    Jogador "1" -- "0..*" ConvitePartida : recebe
+    Partida "1" *-- "0..*" Lancamento : registra
+    Administrador "0..*" -- "0..*" Jogador : modera
