@@ -1,0 +1,19 @@
+{
+  "name": "trucohub",
+  "version": "0.1.0",
+  "description": "Sistema web para organizar partidas de truco, com contagem de pontos, histórico e ranking.",
+  "type": "module",
+  "main": "src/backend/server.js",
+  "engines": {
+    "node": ">=20.6"
+  },
+  "scripts": {
+    "start": "node src/backend/server.js",
+    "dev": "node --watch src/backend/server.js",
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "firebase-admin": "^13.0.0"
+  }
+}
