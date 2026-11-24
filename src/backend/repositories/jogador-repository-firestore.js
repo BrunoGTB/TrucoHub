@@ -4,6 +4,7 @@
  * É a única camada que conhece o Firestore. Converte os campos do código
  * (camelCase) para os nomes do dicionário de dados (snake_case) e vice-versa.
  */
+import { STATUS } from '../models/jogador.js';
 import { Timestamp } from 'firebase-admin/firestore';
 
 /** Nome da coleção no Firestore. */
@@ -107,13 +108,12 @@ export class JogadorRepositoryFirestore {
   }
 
   /**
-   * Lista os jogadores com o status informado e sem exclusão lógica.
-   * @param {string} status
+   * Lista os jogadores ativos (status ATIVO) e sem exclusão lógica.
    * @returns {Promise<import('../models/jogador.js').Jogador[]>}
    */
-  async listarPorStatus(status) {
+  async listarAtivos() {
     const resultado = await this.#colecao
-      .where('status', '==', status)
+      .where('status', '==', STATUS.ATIVO)
       .where('data_exclusao', '==', null)
       .get();
     return resultado.docs.map(paraJogador);

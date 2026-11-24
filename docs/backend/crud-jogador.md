@@ -64,7 +64,7 @@ Erros respondem `{ "mensagem": "..." }` com as mensagens do Documento de Requisi
 | Funcionalidade | Controller | Service | Repository |
 |---|---|---|---|
 | Cadastrar Jogador | `cadastrar` | `cadastrarJogador(dados)` | `buscarPorApelido`, `buscarPorEmail`, `inserir` |
-| Consultar Jogador (busca) | `listar` | `buscarJogadores(texto)` | `listarPorStatus('ATIVO')` |
+| Consultar Jogador (busca) | `listar` | `buscarJogadores(texto)` | `listarAtivos` |
 | Consultar Jogador (perfil) | `consultar` | `consultarJogador(id)` | `buscarPorId` |
 | Alterar Jogador | `alterar` | `alterarJogador(id, dados)` | `buscarPorId`, `buscarPorApelido`, `atualizar` |
 | Excluir Jogador | `excluir` | `excluirJogador(id, senha)` | `buscarPorId`, `atualizar({ dataExclusao })` |

@@ -8,7 +8,6 @@
 import {
   LIMITES,
   PREFIXO_APELIDO,
-  STATUS,
   criarJogador,
   estaExcluido,
   paraRespostaPublica
@@ -132,7 +131,7 @@ export class JogadorService {
    */
   async buscarJogadores(texto = '') {
     const termo = normalizarParaBusca(texto.trim());
-    const ativos = await this.#repository.listarPorStatus(STATUS.ATIVO);
+    const ativos = await this.#repository.listarAtivos();
     return ativos
       .filter((jogador) =>
         normalizarParaBusca(jogador.nome).includes(termo) ||

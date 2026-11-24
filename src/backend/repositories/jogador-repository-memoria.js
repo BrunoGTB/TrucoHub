@@ -6,6 +6,7 @@
  * o projeto localmente sem credenciais do Firebase (BANCO_DADOS=memoria).
  * Os dados se perdem quando o servidor é reiniciado.
  */
+import { STATUS } from '../models/jogador.js';
 import { randomUUID } from 'node:crypto';
 
 export class JogadorRepositoryMemoria {
@@ -52,13 +53,12 @@ export class JogadorRepositoryMemoria {
   }
 
   /**
-   * Lista os jogadores com o status informado e sem exclusão lógica.
-   * @param {string} status
+   * Lista os jogadores ativos (status ATIVO) e sem exclusão lógica.
    * @returns {Promise<import('../models/jogador.js').Jogador[]>}
    */
-  async listarPorStatus(status) {
+  async listarAtivos() {
     return [...this.#jogadores.values()]
-      .filter((jogador) => jogador.status === status && jogador.dataExclusao === null)
+      .filter((jogador) => jogador.status === STATUS.ATIVO && jogador.dataExclusao === null)
       .map((jogador) => ({ ...jogador }));
   }
 
