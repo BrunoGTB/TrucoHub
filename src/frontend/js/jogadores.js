@@ -8,6 +8,9 @@
 /** Endereço base da API. Vazio = mesmo servidor que entregou a página. */
 const URL_API = '/api/jogadores';
 
+/** Status HTTP de resposta sem corpo (exclusão). */
+const STATUS_SEM_CONTEUDO = 204;
+
 /** Mensagem para falha de rede ou servidor fora do ar. */
 const MENSAGEM_FALHA_CONEXAO = 'Não foi possível falar com o servidor. Tente novamente.';
 
@@ -17,6 +20,7 @@ const formBusca = document.querySelector('#form-busca');
 const listaJogadores = document.querySelector('#lista-jogadores');
 const secaoEdicao = document.querySelector('#secao-edicao');
 const formEdicao = document.querySelector('#form-edicao');
+const formExclusao = document.querySelector('#form-exclusao');
 const botaoCancelar = document.querySelector('#botao-cancelar');
 
 /**
@@ -36,6 +40,9 @@ async function chamarApi(caminho, { metodo = 'GET', corpo } = {}) {
     });
   } catch {
     throw new Error(MENSAGEM_FALHA_CONEXAO);
+  }
+  if (resposta.status === STATUS_SEM_CONTEUDO) {
+    return null;
   }
   // Sem backend (ex.: site estático no Netlify), a resposta não é JSON.
   let dados;
@@ -105,6 +112,7 @@ async function abrirEdicao(id) {
   try {
     const jogador = await chamarApi(`/${id}`);
     formEdicao.reset();
+    formExclusao.reset();
     formEdicao.elements.id.value = jogador.id;
     formEdicao.elements.email.value = jogador.email;
     formEdicao.elements.nome.value = jogador.nome;
@@ -120,6 +128,7 @@ async function abrirEdicao(id) {
 /** Esconde o formulário de edição sem salvar. */
 function fecharEdicao() {
   formEdicao.reset();
+  formExclusao.reset();
   secaoEdicao.hidden = true;
 }
 
@@ -154,6 +163,19 @@ formEdicao.addEventListener('submit', async (evento) => {
     await chamarApi(`/${id}`, { metodo: 'PATCH', corpo: alteracoes });
     fecharEdicao();
     exibirMensagem('Perfil atualizado com sucesso!', 'sucesso');
+    await buscarJogadores();
+  } catch (erro) {
+    exibirMensagem(erro.message, 'erro');
+  }
+});
+
+formExclusao.addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const id = formEdicao.elements.id.value;
+  try {
+    await chamarApi(`/${id}`, { metodo: 'DELETE', corpo: lerFormulario(formExclusao) });
+    fecharEdicao();
+    exibirMensagem('Conta excluída.', 'sucesso');
     await buscarJogadores();
   } catch (erro) {
     exibirMensagem(erro.message, 'erro');

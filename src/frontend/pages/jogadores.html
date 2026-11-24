@@ -39,7 +39,7 @@
       <ul id="lista-jogadores" class="lista"></ul>
     </section>
 
-    <!-- RF004 – Alterar Jogador -->
+    <!-- RF004 – Alterar Jogador e RF005 – Excluir Jogador -->
     <section id="secao-edicao" class="cartao" aria-labelledby="titulo-edicao" hidden>
       <h2 id="titulo-edicao">Editar perfil</h2>
       <form id="form-edicao" novalidate>
@@ -56,6 +56,12 @@
         </div>
       </form>
 
+      <form id="form-exclusao" class="zona-perigo" novalidate>
+        <h3>Excluir conta</h3>
+        <p>Esta ação não pode ser desfeita. Digite sua senha para confirmar.</p>
+        <label>Senha <input name="senha" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="perigo">Excluir conta</button>
+      </form>
     </section>
   </main>
 </body>

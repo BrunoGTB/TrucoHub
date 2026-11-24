@@ -101,6 +101,10 @@ button.secundario {
   border: 2px solid var(--cor-primaria);
 }
 
+button.perigo {
+  background: var(--cor-perigo);
+}
+
 .acoes {
   display: flex;
   gap: 8px;
@@ -121,6 +125,17 @@ button.secundario {
   padding: 8px 0;
   border-top: 1px solid var(--cor-borda);
   overflow-wrap: anywhere;
+}
+
+.zona-perigo {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px solid var(--cor-perigo);
+}
+
+.zona-perigo h3 {
+  margin: 0;
+  color: var(--cor-perigo);
 }
 
 .mensagem {
