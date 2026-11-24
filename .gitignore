@@ -1,1 +1,67 @@
+# =============================================================
+# .gitignore do TrucoHub
+# Regra: só vai para o repositório o que é código-fonte,
+# documentação e configuração compartilhada. Tudo que é gerado,
+# instalado ou pessoal fica fora. Detalhes no README (seção 6.4).
+# =============================================================
+
+# --- Dependências do Node.js (recriadas com `npm install`) ---
+node_modules/
+.npm/
+.pnpm-store/
+
+# --- Build e deploy (gerados pelo Netlify a partir de src/) ---
 dist/
+build/
+.netlify/
+
+# --- Firebase (cache local e logs do Firebase CLI) ---
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+pubsub-debug.log
+
+# --- Credenciais e variáveis de ambiente (NUNCA versionar) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+serviceAccountKey*.json
+firebase-service-account.json
+*-service-account*.json
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Testes (relatórios gerados) ---
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# --- Editores e IDEs ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Arquivos do sistema operacional ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Arquivos temporários e de backup ---
+*.tmp
+*.bak
+~$*
