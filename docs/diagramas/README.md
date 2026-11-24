@@ -213,19 +213,22 @@ flowchart TB
             direction LR
             PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, jogadores.html, partidas.html"]
             JS["📁 js<br/><i>scripts das telas</i><br/>jogadores.js, partidas.js"]
-            CSS["📁 css<br/><i>estilos</i><br/>style.css"]
+            CSS["📁 css<br/><i>estilos</i><br/>style.css, jogadores.css"]
         end
         ASSETS["📁 public/assets<br/><i>ícones e imagens</i>"]
         subgraph BACK["📦 src/backend  (back-end)"]
             direction TB
+            APP["📄 app.js, server.js<br/><i>monta o Express e injeta as dependências</i>"]
             ROUTES["📁 routes<br/>jogador-routes.js, partida-routes.js"]
             CTRL["📁 controllers<br/>jogador-controller.js, partida-controller.js"]
             SERV["📁 services<br/>jogador-service.js, partida-service.js"]
-            REPO["📁 repositories<br/>jogador-repository-firestore.js, dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
+            REPO["📁 repositories<br/>jogador-repository-firestore.js, jogador-repository-memoria.js,<br/>dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
             MODELS["📁 models<br/>jogador.js, dupla.js, partida.js, convite-partida.js"]
             UTILS["📁 utils<br/>senha.js"]
+            MIDDLE["📁 middlewares<br/>tratar-erros.js"]
+            ERRORS["📁 errors<br/>app-error.js"]
         end
-        CONFIG["📁 src/config<br/>firebase.js"]
+        CONFIG["📁 src/config<br/>firebase.js, ambiente.js"]
         TESTS["📁 tests<br/>unit, e2e"]
     end
     FIREBASE[["📦 Firebase SDK<br/><i>biblioteca externa</i>"]]
@@ -234,11 +237,16 @@ flowchart TB
     PAGES -.->|«use»| CSS
     PAGES -.->|«use»| ASSETS
     JS -.->|«use» HTTP /api| ROUTES
+    APP -.->|«import»| ROUTES
+    APP -.->|«import»| MIDDLE
+    APP -.->|«import»| CONFIG
     ROUTES -.->|«import»| CTRL
     CTRL -.->|«import»| SERV
     SERV -.->|«import»| REPO
     SERV -.->|«import»| MODELS
     SERV -.->|«import»| UTILS
+    SERV -.->|«import»| ERRORS
+    MIDDLE -.->|«import»| ERRORS
     REPO -.->|«import»| MODELS
     REPO -.->|«import»| CONFIG
     CONFIG -.->|«import»| FIREBASE
@@ -247,7 +255,7 @@ flowchart TB
 
     classDef pkg fill:#fff8dc,stroke:#8a6d3b,color:#222
     classDef ext fill:#eef3ff,stroke:#3b5998,color:#222
-    class PAGES,JS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
+    class APP,MIDDLE,ERRORS,PAGES,JS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
     class FIREBASE ext
 ```
 
@@ -724,7 +732,7 @@ flowchart LR
     subgraph NETLIFY["«device» Servidor Netlify (nuvem)"]
         direction TB
         DIST["<b>«execution environment» Netlify CDN</b><br/>───────────<br/>«artifact» dist/<br/>páginas, css, js e assets"]
-        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: routes, controllers,<br/>services, repositories, models, utils<br/>src/config/firebase.js"]
+        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config/firebase.js"]
     end
 
     subgraph GOOGLE["«device» Servidor Google Cloud (Firebase)"]

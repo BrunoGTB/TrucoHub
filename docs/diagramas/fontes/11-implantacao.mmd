@@ -9,7 +9,7 @@ flowchart LR
     subgraph NETLIFY["«device» Servidor Netlify (nuvem)"]
         direction TB
         DIST["<b>«execution environment» Netlify CDN</b><br/>───────────<br/>«artifact» dist/<br/>páginas, css, js e assets"]
-        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: routes, controllers,<br/>services, repositories, models, utils<br/>src/config/firebase.js"]
+        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config/firebase.js"]
     end
 
     subgraph GOOGLE["«device» Servidor Google Cloud (Firebase)"]
