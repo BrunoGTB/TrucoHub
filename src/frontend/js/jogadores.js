@@ -44,7 +44,13 @@ async function chamarApi(caminho, { metodo = 'GET', corpo } = {}) {
   if (resposta.status === STATUS_SEM_CONTEUDO) {
     return null;
   }
-  const dados = await resposta.json();
+  // Sem backend (ex.: site estático no Netlify), a resposta não é JSON.
+  let dados;
+  try {
+    dados = await resposta.json();
+  } catch {
+    throw new Error(MENSAGEM_FALHA_CONEXAO);
+  }
   if (!resposta.ok) {
     throw new Error(dados.mensagem ?? MENSAGEM_FALHA_CONEXAO);
   }
