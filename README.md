@@ -225,9 +225,10 @@ TrucoHub/
 │       ├── css/
 │       │   └── style.css
 │       ├── js/
-│       │   └── script.js
+│       │   ├── utils/
+│       │   └── <um script por tela>.js
 │       └── pages/
-│           └── index.html
+│           └── <uma página por tela>.html
 │
 ├── tests/
 │   ├── e2e/
@@ -247,7 +248,7 @@ TrucoHub/
 - **`src/`**: contém o código-fonte principal do sistema.
   - **`backend/`**: componentes responsáveis pelas regras de negócio e processamento das requisições.
   - **`config/`**: configurações necessárias para o funcionamento da aplicação.
-  - **`frontend/`**: arquivos responsáveis pela interface e interação com o usuário (estilos, scripts e páginas).
+  - **`frontend/`**: arquivos responsáveis pela interface e interação com o usuário (estilos, scripts e páginas). Cada tela do protótipo tem uma página em `pages/` e um script em `js/`; o que várias telas usam fica em `js/utils/`.
 - **`tests/`**: arquivos relacionados aos testes automatizados.
   - **`e2e/`**: testes automatizados de ponta a ponta.
   - **`unit/`**: testes unitários.

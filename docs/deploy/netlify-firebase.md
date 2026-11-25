@@ -4,13 +4,13 @@ O site https://trucohub.netlify.app tem duas partes, publicadas juntas pelo Netl
 
 | Parte | Onde fica | Como é publicada |
 |---|---|---|
-| Frontend (HTML, CSS, JS) | `src/frontend/` | Copiado para `dist/` pelo comando de build do `netlify.toml`. |
+| Frontend (HTML, CSS, JS) | `src/frontend/` e `public/assets/` | Copiado para `dist/` pelo comando de build do `netlify.toml`. |
 | API REST (`/api/*`) | `src/backend/` | Netlify Function `netlify/functions/api.mjs`, que executa a mesma aplicação Express do servidor local. |
 
 A função grava os dados no Cloud Firestore com o Firebase Admin SDK. Como no Netlify não existe o arquivo JSON da conta de serviço, a credencial vem de variáveis de ambiente configuradas no painel.
 
 ```text
-Navegador ──► trucohub.netlify.app/jogadores.html   (arquivos estáticos)
+Navegador ──► trucohub.netlify.app/cadastro.html    (arquivos estáticos)
           └─► trucohub.netlify.app/api/jogadores    (Netlify Function) ──► Cloud Firestore
 ```
 
@@ -43,7 +43,7 @@ Sem `BANCO_DADOS=firestore`, a função usa o banco em memória, que perde os da
 ## 3. Conferir
 
 1. Abra https://trucohub.netlify.app/api/jogadores. A resposta deve ser uma lista em JSON (`[]` se ainda não houver jogadores).
-2. Abra https://trucohub.netlify.app/jogadores.html, cadastre um jogador e veja o documento aparecer na coleção `jogadores` do Firestore.
+2. Abra https://trucohub.netlify.app/cadastro.html, crie uma conta e veja o documento aparecer na coleção `jogadores` do Firestore.
 
 Se aparecer `{"mensagem":"Ocorreu um erro inesperado..."}`, veja o log em **Logs > Functions > api** no Netlify. O erro `UNAUTHENTICATED` indica variável faltando ou copiada errada.
 
