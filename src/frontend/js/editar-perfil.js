@@ -23,8 +23,9 @@ function preencherFormulario(jogador) {
   for (const campo of ['nome', 'apelido', 'email', 'fotoUrl']) {
     formEdicao.elements[campo].value = jogador[campo] ?? '';
   }
-  formEdicao.elements.senha.value = '';
-  formEdicao.elements.confirmacaoSenha.value = '';
+  for (const campo of ['senhaAtual', 'senha', 'confirmacaoSenha']) {
+    formEdicao.elements[campo].value = '';
+  }
 }
 
 /** Carrega os dados do jogador em uso; sem jogador, mostra o aviso. */
@@ -42,13 +43,13 @@ async function carregarJogador() {
 }
 
 /**
- * Monta o corpo do PATCH: sem o e-mail e, se a senha estiver vazia, sem senha.
+ * Monta o corpo do PATCH: sem o e-mail e, se a nova senha estiver vazia, sem os campos de senha.
  * @returns {Record<string, string>}
  */
 function lerAlteracoes() {
-  const { email, senha, confirmacaoSenha, ...alteracoes } = lerFormulario(formEdicao);
+  const { email, senhaAtual, senha, confirmacaoSenha, ...alteracoes } = lerFormulario(formEdicao);
   if (senha) {
-    Object.assign(alteracoes, { senha, confirmacaoSenha });
+    Object.assign(alteracoes, { senhaAtual, senha, confirmacaoSenha });
   }
   return alteracoes;
 }

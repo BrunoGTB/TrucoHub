@@ -80,8 +80,10 @@ O Firestore guarda também `apelido_busca` (apelido em minúsculas) para checar 
 | POST | `/api/jogadores` | `nome, apelido, email, senha, confirmacaoSenha` | 201 + jogador | RF002 |
 | GET | `/api/jogadores?busca=texto` | — | 200 + lista de jogadores ativos | RF003 |
 | GET | `/api/jogadores/:id` | — | 200 + jogador | RF003 |
-| PATCH | `/api/jogadores/:id` | qualquer um de `nome, apelido, fotoUrl, senha + confirmacaoSenha` | 200 + jogador | RF004 |
+| PATCH | `/api/jogadores/:id` | qualquer um de `nome, apelido, fotoUrl` ou `senhaAtual + senha + confirmacaoSenha` | 200 + jogador | RF004 |
 | DELETE | `/api/jogadores/:id` | `senha` | 204 | RF005 |
+
+Para trocar a senha, o PATCH exige a senha atual (`senhaAtual`): sem ela responde 400 e, se estiver errada, 401.
 
 Erros respondem `{ "mensagem": "..." }` com as mensagens do Documento de Requisitos: 400 (dados inválidos), 401 (senha incorreta), 404 (jogador não encontrado ou excluído) e 409 (apelido ou e-mail em uso). As respostas nunca trazem `senhaHash`.
 

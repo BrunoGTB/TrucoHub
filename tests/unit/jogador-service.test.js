@@ -146,12 +146,33 @@ describe('JogadorService', () => {
       });
     });
 
-    it('troca a senha quando ela é válida', async () => {
+    it('troca a senha quando ela é válida e a senha atual confere', async () => {
       const { id } = await service.cadastrarJogador(dadosCadastro());
       const novaSenha = 'novaSenha456';
-      await service.alterarJogador(id, { senha: novaSenha, confirmacaoSenha: novaSenha });
+      await service.alterarJogador(id, {
+        senhaAtual: SENHA_VALIDA,
+        senha: novaSenha,
+        confirmacaoSenha: novaSenha
+      });
       await assert.rejects(service.excluirJogador(id, SENHA_VALIDA), { message: 'Senha incorreta.' });
       await service.excluirJogador(id, novaSenha);
+    });
+
+    it('exige a senha atual para trocar a senha', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      const novaSenha = 'novaSenha456';
+      const dados = { senha: novaSenha, confirmacaoSenha: novaSenha };
+      await assert.rejects(service.alterarJogador(id, dados), {
+        message: MENSAGENS.SENHA_ATUAL_OBRIGATORIA
+      });
+    });
+
+    it('não troca a senha quando a senha atual está errada', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      const novaSenha = 'novaSenha456';
+      const dados = { senhaAtual: 'outraSenha9', senha: novaSenha, confirmacaoSenha: novaSenha };
+      await assert.rejects(service.alterarJogador(id, dados), { statusHttp: 401 });
+      await service.excluirJogador(id, SENHA_VALIDA);
     });
 
     it('rejeita alteração sem campos', async () => {

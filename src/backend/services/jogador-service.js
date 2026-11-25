@@ -36,6 +36,7 @@ export const MENSAGENS = Object.freeze({
   EMAIL_NAO_ALTERAVEL: 'O e-mail não pode ser alterado.',
   NADA_PARA_ALTERAR: 'Informe ao menos um campo para alterar.',
   SENHA_OBRIGATORIA_EXCLUSAO: 'Digite sua senha para confirmar.',
+  SENHA_ATUAL_OBRIGATORIA: 'Digite a senha atual para trocar a senha.',
   JOGADOR_NAO_ENCONTRADO: 'Jogador não encontrado.'
 });
 
@@ -154,15 +155,19 @@ export class JogadorService {
 
   /**
    * Altera nome, apelido, foto e/ou senha. O e-mail não pode ser alterado.
-   * Só os campos enviados são alterados.
+   * Só os campos enviados são alterados. Para trocar a senha, é preciso
+   * informar a senha atual (tela T17 do protótipo).
    * @param {string} id
-   * @param {{ nome?: string, apelido?: string, fotoUrl?: string|null, senha?: string, confirmacaoSenha?: string, email?: string }} dados
+   * @param {{
+   *   nome?: string, apelido?: string, fotoUrl?: string|null, email?: string,
+   *   senhaAtual?: string, senha?: string, confirmacaoSenha?: string
+   * }} dados
    * @returns {Promise<object>} Jogador atualizado, sem dados sensíveis.
-   * @throws {ErroValidacao | ErroConflito | ErroNaoEncontrado}
+   * @throws {ErroValidacao | ErroConflito | ErroNaoEncontrado | ErroSenhaIncorreta}
    * @see RF004
    */
   async alterarJogador(id, dados) {
-    const { nome, apelido, fotoUrl, senha, confirmacaoSenha, email } = dados ?? {};
+    const { nome, apelido, fotoUrl, senha, confirmacaoSenha, senhaAtual, email } = dados ?? {};
     const jogadorAtual = await this.#obterJogadorExistente(id);
 
     if (email !== undefined) {
@@ -182,6 +187,7 @@ export class JogadorService {
       alteracoes.fotoUrl = this.#validarFotoUrl(fotoUrl);
     }
     if (senha !== undefined) {
+      await this.#conferirSenhaAtual(senhaAtual, jogadorAtual.senhaHash);
       this.#validarSenha(senha, confirmacaoSenha);
       alteracoes.senhaHash = await gerarHashSenha(senha);
     }
@@ -216,6 +222,21 @@ export class JogadorService {
       throw new ErroSenhaIncorreta();
     }
     await this.#repository.atualizar(jogador.id, { dataExclusao: new Date() });
+  }
+
+  /**
+   * Confere a senha atual antes de trocar a senha.
+   * @param {string|undefined} senhaAtual
+   * @param {string} senhaHash Hash guardado do jogador.
+   * @throws {ErroValidacao | ErroSenhaIncorreta}
+   */
+  async #conferirSenhaAtual(senhaAtual, senhaHash) {
+    if (estaVazio(senhaAtual)) {
+      throw new ErroValidacao(MENSAGENS.SENHA_ATUAL_OBRIGATORIA);
+    }
+    if (!(await verificarSenha(senhaAtual, senhaHash))) {
+      throw new ErroSenhaIncorreta();
+    }
   }
 
   /**
