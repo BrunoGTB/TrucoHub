@@ -200,9 +200,9 @@ flowchart TB
         direction TB
         subgraph FRONT["📦 src/frontend  (front-end)"]
             direction LR
-            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, jogadores.html, partidas.html"]
-            JS["📁 js<br/><i>scripts das telas</i><br/>jogadores.js, partidas.js"]
-            CSS["📁 css<br/><i>estilos</i><br/>style.css, jogadores.css"]
+            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, cadastro.html, jogadores.html,<br/>perfil.html, partidas.html"]
+            JS["📁 js<br/><i>scripts das telas</i><br/>api.js, layout.js, logo.js, home.js, cadastro.js,<br/>jogadores.js, perfil.js, partidas.js"]
+            CSS["📁 css<br/><i>estilos</i><br/>style.css"]
         end
         ASSETS["📁 public/assets<br/><i>ícones e imagens</i>"]
         NETFN["📁 netlify/functions<br/>api.mjs<br/><i>roda o app Express no Netlify (serverless-http)</i>"]
@@ -272,8 +272,9 @@ title: "RF002 - Cadastrar Jogador (CRUD de 1 tabela - Create)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>jogadores.html
-    participant S as «script»<br/>jogadores.js
+    participant T as «view»<br/>cadastro.html (T02)
+    participant S as «script»<br/>cadastro.js
+    participant A as «script»<br/>api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -284,8 +285,10 @@ sequenceDiagram
 
     U->>T: preenche nome, apelido, e-mail, senha e confirmação e clica em "Criar conta"
     T->>S: evento submit do formCadastro
-    S->>S: lerFormulario(formCadastro)
-    S->>R: chamarApi('', POST) → fetch POST /api/jogadores
+    S->>A: lerFormulario(formCadastro)
+    A-->>S: dados
+    S->>A: chamarApi('', POST, dados)
+    A->>R: fetch POST /api/jogadores
     R->>C: cadastrar(req, res)
     C->>SV: cadastrarJogador(req.body)
     SV->>SV: validar nome, apelido, e-mail, senha e confirmação
@@ -309,10 +312,12 @@ sequenceDiagram
     M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(201).location(...).json(jogador)
-    R-->>S: 201 Created + JSON
-    S->>T: exibirMensagem("Conta criada com sucesso!")
-    S->>S: buscarJogadores() (recarrega a lista)
-    T-->>U: mostra a mensagem e a lista atualizada
+    R-->>A: 201 Created + JSON
+    A-->>S: jogador
+    S->>A: salvarJogadorAtual(jogador) (localStorage)
+    S->>A: exibirMensagem("Conta criada com sucesso! Abrindo a Home...")
+    S->>T: redireciona para index.html
+    T-->>U: apresenta a Home (T03)
 ```
 
 <a id="04-seq-consultar-jogador"></a>
@@ -328,8 +333,11 @@ title: "RF003 - Consultar Jogador (CRUD de 1 tabela - Read)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>jogadores.html
+    participant T as «view»<br/>jogadores.html (T05)
     participant S as «script»<br/>jogadores.js
+    participant P as «view»<br/>perfil.html (T07)
+    participant PS as «script»<br/>perfil.js
+    participant A as «script»<br/>api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -340,7 +348,8 @@ sequenceDiagram
     U->>T: digita parte do nome ou do apelido e clica em "Buscar"
     T->>S: evento submit do formBusca
     S->>S: buscarJogadores(texto)
-    S->>R: chamarApi('?busca=texto') → fetch GET /api/jogadores?busca=texto
+    S->>A: chamarApi('?busca=texto')
+    A->>R: fetch GET /api/jogadores?busca=texto
     R->>C: listar(req, res)
     C->>SV: buscarJogadores(texto)
     SV->>RP: listarAtivos()
@@ -352,12 +361,15 @@ sequenceDiagram
     M-->>SV: jogadores sem senhaHash
     SV-->>C: lista de jogadores
     C-->>R: res.status(200).json(lista)
-    R-->>S: 200 OK + JSON
-    S->>T: monta a lista com nome, apelido e botão "Editar"
-    T-->>U: apresenta os jogadores encontrados
-    U->>T: clica em "Editar" em um jogador
-    T->>S: abrirEdicao(id)
-    S->>R: chamarApi('/id') → fetch GET /api/jogadores/:id
+    R-->>A: 200 OK + JSON
+    A-->>S: lista
+    S->>T: criarLinhaJogador(jogador) para cada um
+    T-->>U: apresenta avatar, nome, apelido e "Ver perfil"
+    U->>T: clica em "Ver perfil"
+    T->>P: abre perfil.html?id=...
+    P->>PS: carregarPerfil()
+    PS->>A: chamarApi('/id')
+    A->>R: fetch GET /api/jogadores/:id
     R->>C: consultar(req, res)
     C->>SV: consultarJogador(id)
     SV->>RP: buscarPorId(id)
@@ -368,9 +380,10 @@ sequenceDiagram
     M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(200).json(jogador)
-    R-->>S: 200 OK + JSON
-    S->>T: preenche o formulário de edição
-    T-->>U: apresenta nome, apelido, e-mail e foto do jogador
+    R-->>A: 200 OK + JSON
+    A-->>PS: jogador
+    PS->>P: preencherPerfil(jogador)
+    P-->>U: apresenta foto, nome, apelido e e-mail do jogador
 ```
 
 <a id="05-seq-alterar-jogador"></a>
@@ -386,8 +399,9 @@ title: "RF004 - Alterar Jogador (CRUD de 1 tabela - Update)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>jogadores.html
-    participant S as «script»<br/>jogadores.js
+    participant T as «view»<br/>perfil.html (T07)
+    participant S as «script»<br/>perfil.js
+    participant A as «script»<br/>api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -398,8 +412,10 @@ sequenceDiagram
 
     U->>T: altera nome, apelido, foto ou senha e clica em "Salvar"
     T->>S: evento submit do formEdicao
-    S->>S: lerFormulario(formEdicao), sem id e e-mail
-    S->>R: chamarApi('/id', PATCH) → fetch PATCH /api/jogadores/:id
+    S->>A: lerFormulario(formEdicao)
+    A-->>S: alterações (sem o e-mail)
+    S->>A: chamarApi('/id', PATCH, alteracoes)
+    A->>R: fetch PATCH /api/jogadores/:id
     R->>C: alterar(req, res)
     C->>SV: alterarJogador(id, req.body)
     SV->>RP: buscarPorId(id)
@@ -421,10 +437,12 @@ sequenceDiagram
     M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(200).json(jogador)
-    R-->>S: 200 OK + JSON
-    S->>T: fecharEdicao() e exibirMensagem("Perfil atualizado com sucesso!")
-    S->>S: buscarJogadores() (recarrega a lista)
-    T-->>U: mostra a mensagem e a lista atualizada
+    R-->>A: 200 OK + JSON
+    A-->>S: jogador
+    S->>T: preencherPerfil(jogador)
+    S->>A: salvarJogadorAtual(jogador), se for o próprio perfil
+    S->>A: exibirMensagem("Perfil atualizado com sucesso!")
+    T-->>U: apresenta o perfil atualizado e a mensagem
 ```
 
 <a id="06-seq-excluir-jogador"></a>
@@ -440,8 +458,9 @@ title: "RF005 - Excluir Jogador (CRUD de 1 tabela - Delete, exclusão lógica)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>jogadores.html
-    participant S as «script»<br/>jogadores.js
+    participant T as «view»<br/>perfil.html (T07)
+    participant S as «script»<br/>perfil.js
+    participant A as «script»<br/>api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -449,10 +468,12 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: na área de edição, digita a senha e clica em "Excluir conta"
+    U->>T: em "Excluir conta", digita a senha e confirma
     T->>S: evento submit do formExclusao
-    S->>S: lerFormulario(formExclusao)
-    S->>R: chamarApi('/id', DELETE, {senha}) → fetch DELETE /api/jogadores/:id
+    S->>A: lerFormulario(formExclusao)
+    A-->>S: {senha}
+    S->>A: chamarApi('/id', DELETE, {senha})
+    A->>R: fetch DELETE /api/jogadores/:id
     R->>C: excluir(req, res)
     C->>SV: excluirJogador(id, req.body.senha)
     SV->>RP: buscarPorId(id)
@@ -462,15 +483,17 @@ sequenceDiagram
     SV->>H: verificarSenha(senha, jogador.senhaHash)
     H-->>SV: true
     SV->>RP: atualizar(id, {dataExclusao: agora})
-    RP->>DB: doc(id).update({data_exclusao})
+    RP->>DB: doc(id).update({data_exclusao}) e doc(id).get()
     DB-->>RP: ok
     RP-->>SV: ok
     SV-->>C: ok
     C-->>R: res.status(204).end()
-    R-->>S: 204 No Content
-    S->>T: fecharEdicao() e exibirMensagem("Conta excluída.")
-    S->>S: buscarJogadores() (recarrega a lista, sem o jogador excluído)
-    T-->>U: mostra a mensagem e a lista atualizada
+    R-->>A: 204 No Content
+    A-->>S: null
+    S->>A: salvarJogadorAtual(null), se for o próprio perfil
+    S->>T: esconde o perfil
+    S->>A: exibirMensagem("Conta excluída.")
+    T-->>U: apresenta a mensagem "Conta excluída."
 ```
 
 <a id="07-seq-criar-partida"></a>
@@ -729,7 +752,7 @@ title: "TrucoHub - Diagrama de Implantação"
 ---
 flowchart LR
     subgraph CLIENTE["«device» Dispositivo do usuário"]
-        FRONTART["<b>«execution environment» Navegador web</b><br/><i>Chrome/Firefox/Edge 120+ (Windows 10+), Safari 17+ (iOS 17+)</i><br/>───────────<br/>«artifact» front-end<br/>index.html, jogadores.html, partidas.html<br/>style.css, jogadores.js, partidas.js"]
+        FRONTART["<b>«execution environment» Navegador web</b><br/><i>Chrome/Firefox/Edge 120+ (Windows 10+), Safari 17+ (iOS 17+)</i><br/>───────────<br/>«artifact» front-end<br/>index.html, cadastro.html, jogadores.html, perfil.html<br/>style.css, api.js, layout.js, home.js, cadastro.js,<br/>jogadores.js, perfil.js"]
     end
 
     subgraph NETLIFY["«device» Servidor Netlify (nuvem)"]
