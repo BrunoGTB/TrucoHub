@@ -272,7 +272,7 @@ title: "RF002 - Cadastrar Jogador (CRUD de 1 tabela - Create)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T02 Criar conta<br/>jogadores.html
+    participant T as «view»<br/>jogadores.html
     participant S as «script»<br/>jogadores.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
@@ -282,35 +282,37 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: preenche nome, apelido, e-mail, senha e clica em "Criar conta"
-    T->>S: onSubmit(formulario)
-    S->>S: validarFormulario(dados)
-    S->>R: fetch POST /api/jogadores {nome, apelido, email, senha}
+    U->>T: preenche nome, apelido, e-mail, senha e confirmação e clica em "Criar conta"
+    T->>S: evento submit do formCadastro
+    S->>S: lerFormulario(formCadastro)
+    S->>R: chamarApi('', POST) → fetch POST /api/jogadores
     R->>C: cadastrar(req, res)
-    C->>SV: cadastrarJogador(dados)
+    C->>SV: cadastrarJogador(req.body)
+    SV->>SV: validar nome, apelido, e-mail, senha e confirmação
     SV->>RP: buscarPorApelido(apelido)
-    RP->>DB: where("apelido", "==", apelido).get()
+    RP->>DB: where("apelido", "==", apelido).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null
     SV->>RP: buscarPorEmail(email)
-    RP->>DB: where("email", "==", email).get()
+    RP->>DB: where("email", "==", email).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null
     SV->>H: gerarHashSenha(senha)
-    H-->>SV: senha_hash (scrypt)
-    SV->>M: criarJogador({nome, apelido, email, senha_hash})
-    M-->>SV: jogador (perfil JOGADOR, status ATIVO, data_cadastro)
-    SV->>RP: inserir(jogador)
-    RP->>DB: collection("jogadores").add(jogador)
-    DB-->>RP: id_jogador
-    RP-->>SV: jogador salvo
-    SV->>M: paraRespostaPublica(jogador)
-    M-->>SV: jogador sem senha_hash
+    H-->>SV: senhaHash (scrypt)
+    SV->>M: criarJogador({nome, apelido, email, senhaHash})
+    M-->>SV: novoJogador (perfil JOGADOR, status ATIVO)
+    SV->>RP: inserir(novoJogador)
+    RP->>DB: collection("jogadores").add(documento)
+    DB-->>RP: referência do documento
+    RP-->>SV: jogadorSalvo
+    SV->>M: paraRespostaPublica(jogadorSalvo)
+    M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
-    C-->>R: res.status(201).json(jogador)
+    C-->>R: res.status(201).location(...).json(jogador)
     R-->>S: 201 Created + JSON
     S->>T: exibirMensagem("Conta criada com sucesso!")
-    T-->>U: apresenta T03 Home
+    S->>S: buscarJogadores() (recarrega a lista)
+    T-->>U: mostra a mensagem e a lista atualizada
 ```
 
 <a id="04-seq-consultar-jogador"></a>
@@ -326,7 +328,7 @@ title: "RF003 - Consultar Jogador (CRUD de 1 tabela - Read)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T05 Buscar jogadores<br/>jogadores.html
+    participant T as «view»<br/>jogadores.html
     participant S as «script»<br/>jogadores.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
@@ -335,39 +337,40 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: digita parte do nome ou do apelido
-    T->>S: onBuscar(texto)
-    S->>R: fetch GET /api/jogadores?busca=texto
+    U->>T: digita parte do nome ou do apelido e clica em "Buscar"
+    T->>S: evento submit do formBusca
+    S->>S: buscarJogadores(texto)
+    S->>R: chamarApi('?busca=texto') → fetch GET /api/jogadores?busca=texto
     R->>C: listar(req, res)
     C->>SV: buscarJogadores(texto)
     SV->>RP: listarAtivos()
-    RP->>DB: where("status", "==", "ATIVO").get()
+    RP->>DB: where("status", "==", "ATIVO").where("data_exclusao", "==", null).get()
     DB-->>RP: documentos
     RP-->>SV: jogadores ativos
-    SV->>SV: filtrar por nome ou apelido que contenha o texto
-    SV->>M: paraRespostaPublica(jogadores)
-    M-->>SV: lista sem senha_hash
+    SV->>SV: filtrar por nome ou apelido e ordenar por nome
+    SV->>M: paraRespostaPublica(jogador) para cada um
+    M-->>SV: jogadores sem senhaHash
     SV-->>C: lista de jogadores
     C-->>R: res.status(200).json(lista)
     R-->>S: 200 OK + JSON
-    S->>T: renderizarLista(lista)
-    T-->>U: apresenta nome e apelido de cada jogador
-    U->>T: clica em um jogador
-    T->>S: onSelecionar(idJogador)
-    S->>R: fetch GET /api/jogadores/:id
+    S->>T: monta a lista com nome, apelido e botão "Editar"
+    T-->>U: apresenta os jogadores encontrados
+    U->>T: clica em "Editar" em um jogador
+    T->>S: abrirEdicao(id)
+    S->>R: chamarApi('/id') → fetch GET /api/jogadores/:id
     R->>C: consultar(req, res)
     C->>SV: consultarJogador(id)
     SV->>RP: buscarPorId(id)
-    RP->>DB: doc("jogadores/" + id).get()
+    RP->>DB: doc(id).get()
     DB-->>RP: documento
     RP-->>SV: jogador
     SV->>M: paraRespostaPublica(jogador)
-    M-->>SV: jogador sem senha_hash
+    M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(200).json(jogador)
     R-->>S: 200 OK + JSON
-    S->>T: renderizarPerfil(jogador)
-    T-->>U: apresenta T07 Perfil do jogador
+    S->>T: preenche o formulário de edição
+    T-->>U: apresenta nome, apelido, e-mail e foto do jogador
 ```
 
 <a id="05-seq-alterar-jogador"></a>
@@ -383,7 +386,7 @@ title: "RF004 - Alterar Jogador (CRUD de 1 tabela - Update)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T17 Editar perfil<br/>jogadores.html
+    participant T as «view»<br/>jogadores.html
     participant S as «script»<br/>jogadores.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
@@ -393,33 +396,35 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: altera foto, nome, apelido ou senha e clica em "Salvar"
-    T->>S: onSalvar(formulario)
-    S->>S: validarFormulario(dados)
-    S->>R: fetch PATCH /api/jogadores/:id {nome, apelido, fotoUrl, senha}
+    U->>T: altera nome, apelido, foto ou senha e clica em "Salvar"
+    T->>S: evento submit do formEdicao
+    S->>S: lerFormulario(formEdicao), sem id e e-mail
+    S->>R: chamarApi('/id', PATCH) → fetch PATCH /api/jogadores/:id
     R->>C: alterar(req, res)
-    C->>SV: alterarJogador(id, dados)
+    C->>SV: alterarJogador(id, req.body)
     SV->>RP: buscarPorId(id)
-    RP->>DB: doc("jogadores/" + id).get()
+    RP->>DB: doc(id).get()
     DB-->>RP: documento
-    RP-->>SV: jogador atual
+    RP-->>SV: jogadorAtual
+    SV->>SV: validar nome, apelido, foto e senha enviados
     SV->>RP: buscarPorApelido(novoApelido)
-    RP->>DB: where("apelido", "==", novoApelido).get()
+    RP->>DB: where("apelido", "==", novoApelido).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null (apelido livre)
     SV->>H: gerarHashSenha(novaSenha)
-    H-->>SV: novo senha_hash
+    H-->>SV: novo senhaHash
     SV->>RP: atualizar(id, alteracoes)
-    RP->>DB: doc("jogadores/" + id).update(alteracoes)
-    DB-->>RP: ok
-    RP-->>SV: jogador atualizado
-    SV->>M: paraRespostaPublica(jogador)
-    M-->>SV: jogador sem senha_hash
+    RP->>DB: doc(id).update(alteracoes) e doc(id).get()
+    DB-->>RP: documento atualizado
+    RP-->>SV: jogadorAtualizado
+    SV->>M: paraRespostaPublica(jogadorAtualizado)
+    M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(200).json(jogador)
     R-->>S: 200 OK + JSON
-    S->>T: exibirMensagem("Perfil atualizado com sucesso!")
-    T-->>U: apresenta T07 Perfil do jogador
+    S->>T: fecharEdicao() e exibirMensagem("Perfil atualizado com sucesso!")
+    S->>S: buscarJogadores() (recarrega a lista)
+    T-->>U: mostra a mensagem e a lista atualizada
 ```
 
 <a id="06-seq-excluir-jogador"></a>
@@ -435,7 +440,7 @@ title: "RF005 - Excluir Jogador (CRUD de 1 tabela - Delete, exclusão lógica)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T07 Perfil do jogador<br/>jogadores.html
+    participant T as «view»<br/>jogadores.html
     participant S as «script»<br/>jogadores.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
@@ -444,30 +449,28 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: clica em "Excluir conta"
-    T->>S: onExcluir()
-    S->>T: abrirDialogoConfirmacao()
-    T-->>U: "Esta ação não pode ser desfeita. Digite sua senha para confirmar."
-    U->>T: informa a senha e confirma
-    T->>S: onConfirmarExclusao(senha)
-    S->>R: fetch DELETE /api/jogadores/:id {senha}
+    U->>T: na área de edição, digita a senha e clica em "Excluir conta"
+    T->>S: evento submit do formExclusao
+    S->>S: lerFormulario(formExclusao)
+    S->>R: chamarApi('/id', DELETE, {senha}) → fetch DELETE /api/jogadores/:id
     R->>C: excluir(req, res)
-    C->>SV: excluirJogador(id, senha)
+    C->>SV: excluirJogador(id, req.body.senha)
     SV->>RP: buscarPorId(id)
-    RP->>DB: doc("jogadores/" + id).get()
+    RP->>DB: doc(id).get()
     DB-->>RP: documento
     RP-->>SV: jogador
-    SV->>H: verificarSenha(senha, jogador.senha_hash)
+    SV->>H: verificarSenha(senha, jogador.senhaHash)
     H-->>SV: true
-    SV->>RP: atualizar(id, {data_exclusao: agora})
-    RP->>DB: doc("jogadores/" + id).update({data_exclusao})
+    SV->>RP: atualizar(id, {dataExclusao: agora})
+    RP->>DB: doc(id).update({data_exclusao})
     DB-->>RP: ok
     RP-->>SV: ok
     SV-->>C: ok
-    C-->>R: res.status(204).send()
+    C-->>R: res.status(204).end()
     R-->>S: 204 No Content
-    S->>T: encerrarSessao() e exibirMensagem("Conta excluída.")
-    T-->>U: apresenta T01 Entrar
+    S->>T: fecharEdicao() e exibirMensagem("Conta excluída.")
+    S->>S: buscarJogadores() (recarrega a lista, sem o jogador excluído)
+    T-->>U: mostra a mensagem e a lista atualizada
 ```
 
 <a id="07-seq-criar-partida"></a>
