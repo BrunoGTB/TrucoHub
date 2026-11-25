@@ -27,7 +27,7 @@ Diagramas dos itens #19 (classes de domínio e pacotes), #20 (sequência) e #25 
 - **CRUD de 1 tabela:** Jogador (RF002 a RF005). A exclusão é lógica: preenche `data_exclusao`.
 - **CRUD de 3 tabelas:** Partida, com Dupla e Jogador (RF012 a RF015). `convite_partida` aparece como tabela intermediária.
 - **Diagramas de sequência simplificados:** mostram só o fluxo principal, sem `loop` nem `alt`, como pede a sprint.
-- **Implantação:** front-end estático na CDN do Netlify (NF012), API Node.js em Netlify Functions e banco no Cloud Firestore, tudo por HTTPS com TLS 1.2+ (NF009).
+- **Implantação:** front-end estático na CDN do Netlify (NF012), API Node.js 22 em Netlify Functions (`netlify/functions/api.mjs`) e banco no Cloud Firestore, tudo por HTTPS com TLS 1.2+ (NF009).
 
 <a id="01-classes-dominio"></a>
 
@@ -205,6 +205,7 @@ flowchart TB
             CSS["📁 css<br/><i>estilos</i><br/>style.css, jogadores.css"]
         end
         ASSETS["📁 public/assets<br/><i>ícones e imagens</i>"]
+        NETFN["📁 netlify/functions<br/>api.mjs<br/><i>roda o app Express no Netlify (serverless-http)</i>"]
         subgraph BACK["📦 src/backend  (back-end)"]
             direction TB
             APP["📄 app.js, server.js<br/><i>monta o Express e injeta as dependências</i>"]
@@ -217,35 +218,45 @@ flowchart TB
             MIDDLE["📁 middlewares<br/>tratar-erros.js"]
             ERRORS["📁 errors<br/>app-error.js"]
         end
-        CONFIG["📁 src/config<br/>firebase.js, ambiente.js"]
+        CONFIG["📁 src/config<br/>ambiente.js, banco-dados.js, firebase.js"]
         TESTS["📁 tests<br/>unit, e2e"]
     end
-    FIREBASE[["📦 Firebase SDK<br/><i>biblioteca externa</i>"]]
+    FIREBASE[["📦 firebase-admin<br/><i>biblioteca externa</i>"]]
+    EXPRESS[["📦 express, serverless-http<br/><i>bibliotecas externas</i>"]]
 
     PAGES -.->|«use»| JS
     PAGES -.->|«use»| CSS
     PAGES -.->|«use»| ASSETS
     JS -.->|«use» HTTP /api| ROUTES
+    NETFN -.->|«import»| APP
+    NETFN -.->|«import»| CONFIG
+    NETFN -.->|«import»| EXPRESS
     APP -.->|«import»| ROUTES
+    APP -.->|«import»| CTRL
+    APP -.->|«import»| SERV
     APP -.->|«import»| MIDDLE
     APP -.->|«import»| CONFIG
-    ROUTES -.->|«import»| CTRL
-    CTRL -.->|«import»| SERV
-    SERV -.->|«import»| REPO
+    APP -.->|«import»| EXPRESS
+    ROUTES -.->|«use» injetado| CTRL
+    CTRL -.->|«use» injetado| SERV
+    SERV -.->|«use» injetado| REPO
     SERV -.->|«import»| MODELS
     SERV -.->|«import»| UTILS
     SERV -.->|«import»| ERRORS
     MIDDLE -.->|«import»| ERRORS
     REPO -.->|«import»| MODELS
-    REPO -.->|«import»| CONFIG
+    REPO -.->|«import»| FIREBASE
+    CONFIG -.->|«import»| REPO
     CONFIG -.->|«import»| FIREBASE
+    TESTS -.->|«import»| APP
     TESTS -.->|«import»| SERV
     TESTS -.->|«import»| REPO
+    TESTS -.->|«import»| MODELS
 
     classDef pkg fill:#fff8dc,stroke:#8a6d3b,color:#222
     classDef ext fill:#eef3ff,stroke:#3b5998,color:#222
-    class APP,MIDDLE,ERRORS,PAGES,JS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
-    class FIREBASE ext
+    class NETFN,APP,MIDDLE,ERRORS,PAGES,JS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
+    class FIREBASE,EXPRESS ext
 ```
 
 <a id="03-seq-cadastrar-jogador"></a>
@@ -721,7 +732,7 @@ flowchart LR
     subgraph NETLIFY["«device» Servidor Netlify (nuvem)"]
         direction TB
         DIST["<b>«execution environment» Netlify CDN</b><br/>───────────<br/>«artifact» dist/<br/>páginas, css, js e assets"]
-        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config/firebase.js"]
+        API["<b>«execution environment» Netlify Functions (Node.js 22)</b><br/>───────────<br/>«artifact» netlify/functions/api.mjs (serverless-http)<br/>«artifact» API TrucoHub (Express)<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config: ambiente.js, banco-dados.js, firebase.js<br/><i>credenciais do Firebase em variáveis de ambiente:<br/>FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY</i>"]
     end
 
     subgraph GOOGLE["«device» Servidor Google Cloud (Firebase)"]
@@ -733,9 +744,9 @@ flowchart LR
 
     FRONTART <-->|"HTTPS (TLS 1.2+)<br/>páginas estáticas"| DIST
     FRONTART <-->|"HTTPS (TLS 1.2+)<br/>REST/JSON /api/*"| API
-    API <-->|"HTTPS / gRPC<br/>Firebase SDK"| DB
+    API <-->|"HTTPS / gRPC<br/>firebase-admin"| DB
     GIT -->|"git push (HTTPS)"| REPO
-    REPO -->|"webhook: build e deploy<br/>(netlify.toml)"| DIST
+    REPO -->|"webhook: build e deploy<br/>do site e da função (netlify.toml)"| NETLIFY
 
     classDef art fill:#fff8dc,stroke:#8a6d3b,color:#222
     class FRONTART,DIST,API,GIT,REPO art
