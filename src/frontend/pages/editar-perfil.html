@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Editar perfil | TrucoHub</title>
+  <script type="module" src="js/utils/layout.js"></script>
+  <script type="module" src="js/editar-perfil.js"></script>
+</head>
+<body data-pagina="perfil" data-subpagina>
+  <!-- T17 – Editar perfil: alterar (RF004) e excluir (RF005) a conta do jogador em uso. -->
+  <main class="principal">
+    <header class="cabecalho-pagina com-voltar">
+      <a class="voltar" href="perfil.html">
+        <span class="icone icone-voltar" aria-hidden="true"></span><span>Perfil</span>
+      </a>
+      <div>
+        <h1>Editar perfil</h1>
+        <p class="subtitulo so-desktop">Atualize seus dados ou exclua sua conta.</p>
+      </div>
+    </header>
+
+    <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+
+    <section id="sem-jogador" class="painel" hidden>
+      <p class="texto-suave">Crie sua conta para ter um perfil.</p>
+      <div class="acoes"><a class="botao" href="cadastro.html">Criar conta</a></div>
+    </section>
+
+    <div id="conteudo-edicao" class="colunas lateral" hidden>
+      <!-- RF004 – Alterar Jogador -->
+      <section class="painel" aria-label="Dados do perfil">
+        <form id="form-edicao" novalidate>
+          <div class="foto-perfil">
+            <span id="perfil-avatar"></span>
+            <div>
+              <p class="titulo">Foto do perfil</p>
+              <button id="botao-trocar-foto" type="button" class="botao-link">Trocar foto</button>
+            </div>
+          </div>
+          <label id="campo-foto" class="campo" hidden>Endereço da foto
+            <input name="fotoUrl" type="url" maxlength="255" placeholder="https://...">
+          </label>
+          <div class="linha-campos">
+            <label class="campo">Nome
+              <input name="nome" maxlength="80" autocomplete="name" required>
+            </label>
+            <label class="campo">Apelido
+              <input name="apelido" maxlength="30" required>
+            </label>
+          </div>
+          <label class="campo">E-mail (não pode ser alterado)
+            <input name="email" readonly>
+          </label>
+          <h2 class="subtitulo-form">Alterar senha</h2>
+          <div class="linha-campos">
+            <label class="campo">Nova senha
+              <input name="senha" type="password" minlength="8" autocomplete="new-password"
+                     placeholder="Mínimo de 8 caracteres">
+            </label>
+            <label class="campo">Confirmar nova senha
+              <input name="confirmacaoSenha" type="password" minlength="8"
+                     autocomplete="new-password" placeholder="Repita a nova senha">
+            </label>
+          </div>
+          <div class="acoes acoes-fixas">
+            <button type="submit" class="botao">Salvar alterações</button>
+            <a class="botao fantasma" href="perfil.html">Cancelar</a>
+          </div>
+        </form>
+      </section>
+
+      <!-- RF005 – Excluir Jogador -->
+      <section class="painel perigo" aria-labelledby="titulo-exclusao">
+        <h2 id="titulo-exclusao">Excluir conta</h2>
+        <p class="texto-suave">
+          Sua conta é desativada e deixa de aparecer na busca. Esta ação não pode ser desfeita.
+        </p>
+        <form id="form-exclusao" novalidate>
+          <label class="campo">Confirme sua senha
+            <input name="senha" type="password" autocomplete="current-password" required>
+          </label>
+          <button type="submit" class="botao perigo largo">Excluir minha conta</button>
+        </form>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

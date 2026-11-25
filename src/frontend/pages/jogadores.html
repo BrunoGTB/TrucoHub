@@ -5,33 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <title>Buscar jogadores | TrucoHub</title>
-  <script type="module" src="js/layout.js"></script>
+  <script type="module" src="js/utils/layout.js"></script>
   <script type="module" src="js/jogadores.js"></script>
 </head>
-<body data-pagina="amigos">
+<body data-pagina="amigos" data-subpagina>
   <!-- T05 – Buscar jogadores (RF003). -->
   <main class="principal">
-    <header class="cabecalho-pagina">
+    <header class="cabecalho-pagina com-voltar">
+      <a class="voltar" href="index.html">
+        <span class="icone icone-voltar" aria-hidden="true"></span><span>Home</span>
+      </a>
       <div>
         <h1>Buscar jogadores</h1>
-        <p class="subtitulo">Encontre jogadores pelo nome ou apelido.</p>
+        <p class="subtitulo so-desktop">Encontre pelo nome ou apelido.</p>
       </div>
     </header>
 
-    <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+    <div class="secao largura-busca">
+      <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
 
-    <form id="form-busca" class="busca" role="search">
-      <label class="campo">
-        <span class="visualmente-oculto">Nome ou apelido</span>
-        <input name="busca" type="search" placeholder="Nome ou @apelido">
-      </label>
-      <button type="submit" class="botao">Buscar</button>
-    </form>
+      <form id="form-busca" role="search">
+        <label class="campo-busca">
+          <span class="icone icone-busca" aria-hidden="true"></span>
+          <span class="visualmente-oculto">Nome ou apelido</span>
+          <input name="busca" type="search" placeholder="Nome ou @apelido" autocomplete="off">
+        </label>
+      </form>
 
-    <ul id="lista-jogadores" class="lista-pessoas" aria-live="polite"></ul>
+      <p id="resumo-busca" class="resumo-busca" aria-live="polite"></p>
+      <ul id="lista-jogadores" class="lista-pessoas"></ul>
+    </div>
   </main>
 </body>
 </html>

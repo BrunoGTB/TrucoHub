@@ -1,10 +1,11 @@
 /*
- * Estilos base do TrucoHub, seguindo o protótipo do Figma
- * ("TrucoHub - Identidade Visual", página "04 - Desktop e Mobile").
+ * Estilos do TrucoHub, seguindo o protótipo do Figma (arquivo
+ * "TrucoHub - Identidade Visual" linkado no README, telas Desktop 1440 e
+ * Mobile 390).
  *
- * As cores vêm das variáveis do Figma (cor/...) e os componentes seguem os
- * do mapeamento: botão, campo, avatar, etiqueta, card, linha de pessoa,
- * sidebar desktop e barra inferior mobile.
+ * As cores vêm das variáveis do Figma (cor/...) e os componentes seguem a
+ * seção "Componentes": botão, campo, avatar, etiqueta, card de estatística,
+ * linha de pessoa, sidebar desktop e barra inferior mobile.
  */
 
 :root {
@@ -16,14 +17,15 @@
   --cor-texto: #f5f1ea;
   --cor-texto-suave: #a39e94;
   --cor-dourado: #cf9642;
-  --cor-dourado-claro: #fed291;
   --cor-sobre-dourado: #1c1c1c;
   --cor-sucesso: #4caf7a;
   --cor-erro: #e05252;
 
   /* Medidas */
   --raio: 10px;
-  --raio-cartao: 12px;
+  --raio-linha: 12px;
+  --raio-card: 14px;
+  --raio-painel: 16px;
   --altura-minima-toque: 44px; /* NF002 */
   --largura-sidebar: 264px;
   --altura-barra-inferior: 84px;
@@ -49,8 +51,14 @@ a {
 
 h1,
 h2,
-h3 {
+h3,
+p {
   margin: 0;
+}
+
+h1,
+h2,
+h3 {
   line-height: 1.2;
 }
 
@@ -58,14 +66,67 @@ h3 {
   display: none !important;
 }
 
-/* ---------- Casca: sidebar (desktop) e barra inferior (mobile) ---------- */
+/* ---------- Ícones do Figma (cor = cor do texto) ---------- */
 
-.casca {
-  min-height: 100vh;
+.icone {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  mask: var(--icone) center / contain no-repeat;
 }
+
+.icone-home { --icone: url('/assets/icons/home.svg'); }
+.icone-amigos { --icone: url('/assets/icons/amigos.svg'); }
+.icone-duplas { --icone: url('/assets/icons/duplas.svg'); }
+.icone-partidas { --icone: url('/assets/icons/partidas.svg'); }
+.icone-espera { --icone: url('/assets/icons/espera.svg'); }
+.icone-ranking { --icone: url('/assets/icons/ranking.svg'); }
+.icone-perfil { --icone: url('/assets/icons/perfil.svg'); }
+.icone-sino { --icone: url('/assets/icons/sino.svg'); }
+.icone-mais { --icone: url('/assets/icons/mais.svg'); }
+.icone-busca { --icone: url('/assets/icons/busca.svg'); }
+.icone-voltar { --icone: url('/assets/icons/voltar.svg'); }
+
+/* ---------- Logo ---------- */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.logo.grande {
+  gap: 14px;
+  font-size: 28px;
+}
+
+.logo.grande img {
+  width: 48px;
+  height: 42px;
+}
+
+/* ---------- Casca: sidebar (desktop) e barra inferior (mobile) ---------- */
 
 .sidebar {
   display: none;
+}
+
+.principal {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 16px calc(var(--altura-barra-inferior) + 24px);
+}
+
+[data-subpagina] .principal {
+  padding-bottom: 24px;
 }
 
 .barra-inferior {
@@ -99,63 +160,8 @@ h3 {
   color: var(--cor-dourado);
 }
 
-.principal {
-  padding: 24px 16px calc(var(--altura-barra-inferior) + 24px);
-  max-width: 960px;
-  margin: 0 auto;
-}
-
-.topo-mobile {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: var(--cor-superficie);
-  border-bottom: 1px solid var(--cor-borda);
-}
-
-@media (min-width: 900px) {
-  .casca {
-    display: grid;
-    grid-template-columns: var(--largura-sidebar) 1fr;
-  }
-
-  .sidebar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    height: 100vh;
-    padding: 28px 16px 24px;
-    background: var(--cor-superficie);
-    border-right: 1px solid var(--cor-borda);
-  }
-
-  .barra-inferior,
-  .topo-mobile {
-    display: none;
-  }
-
-  .principal {
-    width: 100%;
-    padding: 40px 48px;
-  }
-}
-
 .marca {
   padding-left: 8px;
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  color: var(--cor-texto);
-  text-decoration: none;
 }
 
 .menu {
@@ -175,30 +181,23 @@ h3 {
   text-decoration: none;
 }
 
-.item-menu:hover {
+.item-menu:hover,
+.item-menu.ativa {
   background: var(--cor-superficie-2);
 }
 
 .item-menu.ativa {
-  background: var(--cor-superficie-2);
   font-weight: 600;
   color: var(--cor-dourado);
 }
 
-.item-menu[aria-disabled='true'],
-.aba[aria-disabled='true'] {
+[aria-disabled='true'] {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
 .item-menu[aria-disabled='true']:hover {
   background: none;
-}
-
-.icone {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
 }
 
 .usuario {
@@ -229,69 +228,224 @@ h3 {
   color: var(--cor-texto);
 }
 
-/* ---------- Cabeçalho da página ---------- */
+@media (min-width: 900px) {
+  .casca {
+    display: grid;
+    grid-template-columns: var(--largura-sidebar) 1fr;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    height: 100vh;
+    padding: 28px 16px 24px;
+    background: var(--cor-superficie);
+    border-right: 1px solid var(--cor-borda);
+  }
+
+  .barra-inferior {
+    display: none;
+  }
+
+  .principal,
+  [data-subpagina] .principal {
+    gap: 28px;
+    min-width: 0;
+    padding: 40px 48px;
+  }
+}
+
+/* ---------- Cabeçalho da página e "voltar" ---------- */
+
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: var(--altura-minima-toque);
+  font-size: 14px;
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+}
+
+.voltar:hover {
+  color: var(--cor-texto);
+}
 
 .cabecalho-pagina {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
 }
 
 .cabecalho-pagina h1 {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
 }
 
 .subtitulo {
-  margin: 6px 0 0;
+  margin-top: 6px;
+  font-size: 15px;
   color: var(--cor-texto-suave);
 }
 
-.secao + .secao {
-  margin-top: 32px;
+.acoes-cabecalho {
+  display: flex;
+  gap: 12px;
 }
 
-.secao h2 {
-  margin-bottom: 16px;
+/* Desktop: "voltar" acima do título. Mobile: só a seta ao lado do título. */
+@media (min-width: 900px) {
+  .com-voltar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 899px) {
+  .com-voltar {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 8px;
+  }
+
+  .com-voltar .voltar span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .com-voltar .voltar .icone {
+    color: var(--cor-texto);
+  }
+
+  .com-voltar h1 {
+    font-size: 22px;
+  }
+
+  .com-voltar .subtitulo {
+    grid-column: 1 / -1;
+  }
+
+  .cabecalho-pagina h1 {
+    font-size: 26px;
+  }
+}
+
+/* ---------- Grades e seções ---------- */
+
+.colunas {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .colunas {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .colunas.lateral {
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    align-items: start;
+  }
+}
+
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pilha {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .pilha {
+    gap: 28px;
+  }
+}
+
+.secao > .titulo-secao:not(:first-child) {
+  margin-top: 12px;
+}
+
+.titulo-secao {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   font-size: 18px;
+  font-weight: 600;
 }
 
-/* ---------- Cartão ---------- */
+/* ---------- Painéis e cards ---------- */
 
-.cartao {
-  padding: 24px;
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-cartao);
+  border-radius: var(--raio-painel);
 }
 
-.cartao-estreito {
-  max-width: 440px;
+.painel.destaque {
+  border-color: var(--cor-dourado);
 }
 
-.grade-cards {
+.painel.perigo {
+  border-color: var(--cor-erro);
+}
+
+.painel.perigo h2 {
+  font-size: 18px;
+  color: var(--cor-erro);
+}
+
+.painel h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.texto-suave {
+  font-size: 14px;
+  color: var(--cor-texto-suave);
+}
+
+.grade-estatisticas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .grade-estatisticas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
 }
 
 .card-estatistica {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 16px;
+  padding: 20px;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-cartao);
-  color: inherit;
-  text-decoration: none;
-}
-
-a.card-estatistica:hover {
-  border-color: var(--cor-dourado);
+  border-radius: var(--raio-card);
 }
 
 .card-estatistica .rotulo {
@@ -300,13 +454,56 @@ a.card-estatistica:hover {
 }
 
 .card-estatistica .valor {
-  font-size: 20px;
+  font-size: 32px;
   font-weight: 700;
 }
 
-.card-estatistica .detalhe {
+.card-estatistica .nota {
   font-size: 12px;
   color: var(--cor-dourado);
+}
+
+.vazio {
+  padding: 20px 16px;
+  background: var(--cor-superficie);
+  border: 1px dashed var(--cor-borda);
+  border-radius: var(--raio-linha);
+  font-size: 14px;
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+/* ---------- Atalhos (Home) ---------- */
+
+.lista-atalhos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.atalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-linha);
+  font-size: 14px;
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.atalho .icone {
+  color: var(--cor-dourado);
+}
+
+a.atalho:hover {
+  border-color: var(--cor-dourado);
 }
 
 /* ---------- Formulário (componente Campo) ---------- */
@@ -314,13 +511,15 @@ a.card-estatistica:hover {
 form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .campo {
   display: flex;
+  flex: 1 1 0;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--cor-texto-suave);
@@ -352,19 +551,51 @@ form {
   cursor: not-allowed;
 }
 
-.grade-campos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+.linha-campos {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
-.busca {
-  flex-direction: row;
-  gap: 12px;
+.linha-campos .campo {
+  flex-basis: 200px;
 }
 
-.busca .campo {
-  flex: 1;
+.subtitulo-form {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+/* Campo de busca com a lupa dentro (T05). */
+.campo-busca {
+  position: relative;
+  display: block;
+}
+
+.campo-busca .icone {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  color: var(--cor-texto-suave);
+  transform: translateY(-50%);
+}
+
+.campo-busca input {
+  width: 100%;
+  min-height: 56px;
+  padding: 16px 16px 16px 52px;
+  background: var(--cor-superficie);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-linha);
+  font: inherit;
+  font-size: 15px;
+  color: var(--cor-texto);
+}
+
+.campo-busca input:focus {
+  outline: none;
+  border-color: var(--cor-dourado);
 }
 
 /* ---------- Botão ---------- */
@@ -373,6 +604,7 @@ form {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   min-height: var(--altura-minima-toque);
   padding: 12px 20px;
   border: none;
@@ -383,6 +615,7 @@ form {
   font-weight: 600;
   color: var(--cor-sobre-dourado);
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -407,6 +640,16 @@ form {
   color: var(--cor-erro);
 }
 
+.botao.icone-so {
+  padding: 10px;
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto);
+}
+
+.botao.largo {
+  width: 100%;
+}
+
 .acoes {
   display: flex;
   flex-wrap: wrap;
@@ -414,9 +657,9 @@ form {
 }
 
 .link-texto {
-  margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--cor-texto-suave);
+  text-align: center;
 }
 
 /* ---------- Avatar e etiqueta ---------- */
@@ -443,10 +686,16 @@ form {
   object-fit: cover;
 }
 
-.avatar.grande {
+.avatar.medio {
   width: 72px;
   height: 72px;
-  font-size: 24px;
+  font-size: 23px;
+}
+
+.avatar.grande {
+  width: 88px;
+  height: 88px;
+  font-size: 28px;
 }
 
 .etiqueta {
@@ -460,18 +709,28 @@ form {
   color: var(--cor-dourado);
 }
 
+.etiqueta.sucesso {
+  border-color: var(--cor-sucesso);
+  color: var(--cor-sucesso);
+}
+
 .etiqueta.neutro {
   border-color: transparent;
   color: var(--cor-texto-suave);
 }
 
-/* ---------- Linha de pessoa (lista de jogadores) ---------- */
+/* ---------- Linha de pessoa (T05) ---------- */
+
+.resumo-busca {
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
 
 .lista-pessoas {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 16px 0 0;
+  gap: 10px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -484,7 +743,7 @@ form {
   padding: 14px 16px;
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-cartao);
+  border-radius: var(--raio-linha);
 }
 
 .linha-pessoa .textos {
@@ -507,56 +766,193 @@ form {
   overflow-wrap: anywhere;
 }
 
-.linha-pessoa .acao {
-  flex-shrink: 0;
+.linha-pessoa .botao {
+  min-height: 40px;
+  padding: 8px 14px;
   font-size: 14px;
-  font-weight: 600;
-  color: var(--cor-dourado);
-  text-decoration: none;
 }
 
-.vazio {
-  padding: 24px;
-  text-align: center;
-  color: var(--cor-texto-suave);
+@media (min-width: 900px) {
+  .largura-busca {
+    max-width: 720px;
+  }
 }
 
-/* ---------- Perfil ---------- */
+/* ---------- Perfil (T07) ---------- */
 
-.perfil-topo {
+.cartao-perfil {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.cartao-perfil .dados {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cartao-perfil .nome {
+  font-size: 30px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 899px) {
+  .cartao-perfil {
+    flex-direction: column;
+    padding: 0;
+    background: none;
+    border: none;
+    text-align: center;
+  }
+
+  .cartao-perfil .dados {
+    flex: none;
+    align-items: center;
+  }
+
+  .cartao-perfil .nome {
+    font-size: 24px;
+  }
+
+  .cartao-perfil .acoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+}
+
+/* ---------- Editar perfil (T17) ---------- */
+
+.foto-perfil {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
 }
 
-.perfil-topo .nome {
-  font-size: 20px;
+.foto-perfil .titulo {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.botao-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--cor-dourado);
+  cursor: pointer;
+}
+
+/* No mobile, "Salvar alterações" fica preso no rodapé, como no protótipo. */
+@media (max-width: 899px) {
+  .acoes-fixas {
+    position: sticky;
+    bottom: 0;
+    margin: 0 -28px -28px;
+    padding: 16px 28px;
+    background: var(--cor-superficie);
+    border-top: 1px solid var(--cor-borda);
+  }
+
+  .acoes-fixas .botao:first-child {
+    flex: 1;
+  }
+}
+
+/* ---------- Telas de antes do login (T02) ---------- */
+
+.autenticacao {
+  display: grid;
+  min-height: 100vh;
+}
+
+.painel-marca {
+  display: none;
+}
+
+.area-formulario {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+
+.formulario-autenticacao {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.formulario-autenticacao h1 {
+  font-size: 32px;
   font-weight: 700;
 }
 
-.perfil-topo .detalhe {
-  margin-top: 4px;
-  color: var(--cor-texto-suave);
+@media (min-width: 900px) {
+  .autenticacao {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .painel-marca {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 64px;
+    background: var(--cor-superficie);
+    border-right: 1px solid var(--cor-borda);
+  }
+
+  .painel-marca .chamada {
+    max-width: 540px;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .painel-marca .chamada em {
+    font-style: normal;
+    color: var(--cor-dourado);
+  }
+
+  .painel-marca .apoio {
+    max-width: 520px;
+    margin-top: 20px;
+    font-size: 18px;
+    color: var(--cor-texto-suave);
+  }
+
+  .area-formulario {
+    justify-content: center;
+    padding: 64px;
+  }
+
+  .so-mobile {
+    display: none;
+  }
 }
 
-.zona-perigo {
-  border-color: var(--cor-erro);
-}
+@media (max-width: 899px) {
+  .so-desktop {
+    display: none;
+  }
 
-.zona-perigo h2 {
-  color: var(--cor-erro);
-}
-
-.zona-perigo p {
-  margin: 0;
-  color: var(--cor-texto-suave);
+  .formulario-autenticacao h1 {
+    font-size: 22px;
+  }
 }
 
 /* ---------- Mensagem de retorno ---------- */
 
 .mensagem {
-  margin: 0 0 24px;
   padding: 12px 16px;
   background: var(--cor-superficie-2);
   border: 1px solid var(--cor-borda);
@@ -574,34 +970,6 @@ form {
   color: var(--cor-erro);
 }
 
-/* ---------- Telas de antes do login (T01, T02) ---------- */
-
-.autenticacao {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  max-width: 440px;
-  margin: 0 auto;
-  padding: 48px 16px;
-}
-
-.autenticacao .cartao {
-  width: 100%;
-}
-
-.autenticacao h1 {
-  font-size: 24px;
-}
-
-.autenticacao .subtitulo {
-  margin-bottom: 24px;
-}
-
-.autenticacao form .botao {
-  margin-top: 8px;
-}
-
 /* ---------- Utilitários ---------- */
 
 .visualmente-oculto {
@@ -611,12 +979,4 @@ form {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-
-.acoes-centro {
-  justify-content: center;
-}
-
-.card-estatistica[aria-disabled='true'] {
-  opacity: 0.6;
 }

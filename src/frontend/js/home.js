@@ -1,17 +1,16 @@
 /**
  * Script da Home (index.html, tela T03 do protótipo).
- * Personaliza a saudação e os atalhos para o jogador em uso.
+ * Personaliza a saudação e a ação principal para o jogador em uso.
  */
-import { lerJogadorAtual } from './api.js';
+import { saudacao } from './utils/tela.js';
+import { lerJogadorAtual } from './utils/jogador-atual.js';
 
 const jogador = lerJogadorAtual();
 
 if (jogador) {
-  document.querySelector('#saudacao').textContent = `Olá, ${jogador.nome.split(' ')[0]}!`;
-  const acaoPrincipal = document.querySelector('#acao-principal');
-  acaoPrincipal.textContent = 'Buscar jogadores';
-  acaoPrincipal.href = 'jogadores.html';
-} else {
-  document.querySelector('#atalho-perfil .detalhe').textContent = 'Crie sua conta para ter um perfil';
-  document.querySelector('#atalho-perfil').href = 'cadastro.html';
+  const primeiroNome = jogador.nome.split(' ')[0];
+  document.querySelector('#saudacao').textContent = `${saudacao()}, ${primeiroNome}`;
+  document.querySelector('#resumo').textContent = 'Partidas e convites chegam em breve.';
+  document.querySelector('#acao-principal').hidden = true;
+  document.querySelector('#nova-partida').hidden = false;
 }
