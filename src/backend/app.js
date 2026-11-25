@@ -13,7 +13,9 @@ import { JogadorController } from './controllers/jogador-controller.js';
 import { criarJogadorRoutes } from './routes/jogador-routes.js';
 import { rotaNaoEncontrada, tratarErros } from './middlewares/tratar-erros.js';
 
-const PASTA_FRONTEND = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend');
+const PASTA_BACKEND = path.dirname(fileURLToPath(import.meta.url));
+const PASTA_FRONTEND = path.join(PASTA_BACKEND, '..', 'frontend');
+const PASTA_ASSETS = path.join(PASTA_BACKEND, '..', '..', 'public', 'assets');
 
 /**
  * Cria a aplicação Express.
@@ -33,6 +35,7 @@ export function criarApp({ jogadorRepository }) {
   app.use(express.static(path.join(PASTA_FRONTEND, 'pages')));
   app.use('/css', express.static(path.join(PASTA_FRONTEND, 'css')));
   app.use('/js', express.static(path.join(PASTA_FRONTEND, 'js')));
+  app.use('/assets', express.static(PASTA_ASSETS));
 
   app.use(tratarErros);
   return app;
