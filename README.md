@@ -279,7 +279,7 @@ A `main` guarda sempre a versão estável, que é publicada no Netlify. Ninguém
 2. Crie a branch da tarefa: `git checkout -b feat/crud-jogador`.
 3. Faça commits pequenos seguindo o padrão da seção 6.2.
 4. Envie a branch: `git push -u origin feat/crud-jogador`.
-5. Abra um Pull Request para a `main`, com o número da tarefa da sprint (ex.: `#24`) na descrição, e mova a tarefa para **Em revisão** no Kanban.
+5. Abra um Pull Request para a `main`, com o item da sprint na descrição escrito como "item 24" (sem `#`, que o GitHub transforma em link para issue), e mova a tarefa para **Em revisão** no Kanban.
 6. O outro integrante revisa usando o checklist das [Boas Práticas de Codificação](Padrões%20Adotados/Boas%20Práticas%20de%20Codificação.md#3-checklist-de-revisão-do-pull-request) e aprova.
 7. Depois do merge, apague a branch e mova a tarefa para **Feito** no Kanban.
 
