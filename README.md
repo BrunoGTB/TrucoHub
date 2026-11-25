@@ -72,7 +72,7 @@ O CRUD de uma tabela é a conta do Jogador (RF002 a RF005). O CRUD de três tabe
 | NF001 | Exibir todas as telas sem rolagem horizontal em larguras de 360 px a 1920 px. |
 | NF002 | Botões e links com área clicável de no mínimo 44 × 44 px. |
 | NF003 | Disponibilidade mínima de 99,0% do tempo em cada mês. |
-| NF004 | Manter o placar e os lançamentos de uma partida em andamento após recarregar a página. |
+| ~~NF004~~ | ~~Manter o placar e os lançamentos de uma partida em andamento após recarregar a página.~~ |
 | NF005 | Exibir o conteúdo principal de cada tela em até 3 s (Lighthouse 12, conexão de 10 Mbps). |
 | NF006 | Mostrar aos participantes cada lançamento de pontos em até 2 s. |
 | NF007 | Expirar convites sem resposta entre 180 e 190 s após o envio. |
