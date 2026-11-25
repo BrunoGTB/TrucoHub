@@ -26,8 +26,8 @@ Diagramas dos itens #19 (classes de domínio e pacotes), #20 (sequência) e #25 
 - **Camadas do back-end:** `routes` → `controllers` → `services` → `repositories` → Firestore, com `models` (entidades e regras de formato) e `utils` (hash scrypt da senha). Os nomes dos arquivos seguem o padrão kebab-case do CRUD de Jogador (#24).
 - **CRUD de 1 tabela:** Jogador (RF002 a RF005). A exclusão é lógica: preenche `data_exclusao`.
 - **CRUD de 3 tabelas:** Partida, com Dupla e Jogador (RF012 a RF015). `convite_partida` aparece como tabela intermediária.
-- **Diagramas de sequência simplificados:** mostram só o fluxo principal, sem `loop` nem `alt`, como pede a sprint.
-- **Implantação:** front-end estático na CDN do Netlify (NF012), API Node.js em Netlify Functions e banco no Cloud Firestore, tudo por HTTPS com TLS 1.2+ (NF009).
+- **Diagramas de sequência simplificados:** mostram só o fluxo principal, sem `loop` nem `alt`, como pede a sprint. Em Alterar Jogador, a conferência da senha atual aparece no fluxo principal, com uma nota dizendo que ela só acontece quando o jogador troca a senha.
+- **Implantação:** front-end estático na CDN do Netlify (NF012), API Node.js 22 em Netlify Functions (`netlify/functions/api.mjs`) e banco no Cloud Firestore, tudo por HTTPS com TLS 1.2+ (NF009).
 
 <a id="01-classes-dominio"></a>
 
@@ -200,52 +200,66 @@ flowchart TB
         direction TB
         subgraph FRONT["📦 src/frontend  (front-end)"]
             direction LR
-            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, jogadores.html, partidas.html"]
-            JS["📁 js<br/><i>scripts das telas</i><br/>jogadores.js, partidas.js"]
-            CSS["📁 css<br/><i>estilos</i><br/>style.css, jogadores.css"]
+            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, cadastro.html, jogadores.html,<br/>perfil.html, editar-perfil.html,<br/>partidas.html <i>(a criar, RF012 a RF015)</i>"]
+            JS["📁 js<br/><i>scripts das telas</i><br/>home.js, cadastro.js, jogadores.js, perfil.js,<br/>editar-perfil.js, partidas.js <i>(a criar, RF012 a RF015)</i>"]
+            JSUTILS["📁 js/utils<br/><i>scripts compartilhados</i><br/>api.js, tela.js, jogador-atual.js, layout.js"]
+            CSS["📁 css<br/><i>estilos</i><br/>style.css"]
         end
-        ASSETS["📁 public/assets<br/><i>ícones e imagens</i>"]
+        ASSETS["📁 public/assets<br/><i>ícones e imagens do Figma</i><br/>icons/*.svg, images/logo-simbolo.svg"]
+        NETFN["📁 netlify/functions<br/>api.mjs<br/><i>roda o app Express no Netlify (serverless-http)</i>"]
         subgraph BACK["📦 src/backend  (back-end)"]
             direction TB
             APP["📄 app.js, server.js<br/><i>monta o Express e injeta as dependências</i>"]
-            ROUTES["📁 routes<br/>jogador-routes.js, partida-routes.js"]
-            CTRL["📁 controllers<br/>jogador-controller.js, partida-controller.js"]
-            SERV["📁 services<br/>jogador-service.js, partida-service.js"]
-            REPO["📁 repositories<br/>jogador-repository-firestore.js, jogador-repository-memoria.js,<br/>dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
-            MODELS["📁 models<br/>jogador.js, dupla.js, partida.js, convite-partida.js"]
+            ROUTES["📁 routes<br/>jogador-routes.js,<br/>partida-routes.js <i>(a criar)</i>"]
+            CTRL["📁 controllers<br/>jogador-controller.js,<br/>partida-controller.js <i>(a criar)</i>"]
+            SERV["📁 services<br/>jogador-service.js,<br/>partida-service.js <i>(a criar)</i>"]
+            REPO["📁 repositories<br/>jogador-repository-firestore.js, jogador-repository-memoria.js<br/><i>a criar (RF012 a RF015):</i> dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
+            MODELS["📁 models<br/>jogador.js<br/><i>a criar (RF012 a RF015):</i><br/>dupla.js, partida.js, convite-partida.js"]
             UTILS["📁 utils<br/>senha.js"]
             MIDDLE["📁 middlewares<br/>tratar-erros.js"]
             ERRORS["📁 errors<br/>app-error.js"]
         end
-        CONFIG["📁 src/config<br/>firebase.js, ambiente.js"]
+        CONFIG["📁 src/config<br/>ambiente.js, banco-dados.js, firebase.js"]
         TESTS["📁 tests<br/>unit, e2e"]
     end
-    FIREBASE[["📦 Firebase SDK<br/><i>biblioteca externa</i>"]]
+    FIREBASE[["📦 firebase-admin<br/><i>biblioteca externa</i>"]]
+    EXPRESS[["📦 express, serverless-http<br/><i>bibliotecas externas</i>"]]
 
     PAGES -.->|«use»| JS
     PAGES -.->|«use»| CSS
     PAGES -.->|«use»| ASSETS
-    JS -.->|«use» HTTP /api| ROUTES
+    JS -.->|«import»| JSUTILS
+    JSUTILS -.->|«use» HTTP /api| ROUTES
+    JSUTILS -.->|«use»| ASSETS
+    NETFN -.->|«import»| APP
+    NETFN -.->|«import»| CONFIG
+    NETFN -.->|«import»| EXPRESS
     APP -.->|«import»| ROUTES
+    APP -.->|«import»| CTRL
+    APP -.->|«import»| SERV
     APP -.->|«import»| MIDDLE
     APP -.->|«import»| CONFIG
-    ROUTES -.->|«import»| CTRL
-    CTRL -.->|«import»| SERV
-    SERV -.->|«import»| REPO
+    APP -.->|«import»| EXPRESS
+    ROUTES -.->|«use» injetado| CTRL
+    CTRL -.->|«use» injetado| SERV
+    SERV -.->|«use» injetado| REPO
     SERV -.->|«import»| MODELS
     SERV -.->|«import»| UTILS
     SERV -.->|«import»| ERRORS
     MIDDLE -.->|«import»| ERRORS
     REPO -.->|«import»| MODELS
-    REPO -.->|«import»| CONFIG
+    REPO -.->|«import»| FIREBASE
+    CONFIG -.->|«import»| REPO
     CONFIG -.->|«import»| FIREBASE
+    TESTS -.->|«import»| APP
     TESTS -.->|«import»| SERV
     TESTS -.->|«import»| REPO
+    TESTS -.->|«import»| MODELS
 
     classDef pkg fill:#fff8dc,stroke:#8a6d3b,color:#222
     classDef ext fill:#eef3ff,stroke:#3b5998,color:#222
-    class APP,MIDDLE,ERRORS,PAGES,JS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
-    class FIREBASE ext
+    class NETFN,APP,MIDDLE,ERRORS,PAGES,JS,JSUTILS,CSS,ASSETS,ROUTES,CTRL,SERV,REPO,MODELS,UTILS,CONFIG,TESTS pkg
+    class FIREBASE,EXPRESS ext
 ```
 
 <a id="03-seq-cadastrar-jogador"></a>
@@ -261,8 +275,11 @@ title: "RF002 - Cadastrar Jogador (CRUD de 1 tabela - Create)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T02 Criar conta<br/>jogadores.html
-    participant S as «script»<br/>jogadores.js
+    participant T as «view»<br/>cadastro.html (T02)
+    participant S as «script»<br/>cadastro.js
+    participant TL as «script»<br/>utils/tela.js
+    participant JA as «script»<br/>utils/jogador-atual.js
+    participant A as «script»<br/>utils/api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -271,35 +288,41 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: preenche nome, apelido, e-mail, senha e clica em "Criar conta"
-    T->>S: onSubmit(formulario)
-    S->>S: validarFormulario(dados)
-    S->>R: fetch POST /api/jogadores {nome, apelido, email, senha}
+    U->>T: preenche nome, apelido, e-mail, senha e confirmação e clica em "Criar conta"
+    T->>S: evento submit do formCadastro
+    S->>TL: lerFormulario(formCadastro)
+    TL-->>S: dados
+    S->>A: chamarApi('', POST, dados)
+    A->>R: fetch POST /api/jogadores
     R->>C: cadastrar(req, res)
-    C->>SV: cadastrarJogador(dados)
+    C->>SV: cadastrarJogador(req.body)
+    SV->>SV: validar nome, apelido, e-mail, senha e confirmação
     SV->>RP: buscarPorApelido(apelido)
-    RP->>DB: where("apelido", "==", apelido).get()
+    RP->>DB: where("apelido", "==", apelido).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null
     SV->>RP: buscarPorEmail(email)
-    RP->>DB: where("email", "==", email).get()
+    RP->>DB: where("email", "==", email).where("data_exclusao", "==", null).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null
     SV->>H: gerarHashSenha(senha)
-    H-->>SV: senha_hash (scrypt)
-    SV->>M: criarJogador({nome, apelido, email, senha_hash})
-    M-->>SV: jogador (perfil JOGADOR, status ATIVO, data_cadastro)
-    SV->>RP: inserir(jogador)
-    RP->>DB: collection("jogadores").add(jogador)
-    DB-->>RP: id_jogador
-    RP-->>SV: jogador salvo
-    SV->>M: paraRespostaPublica(jogador)
-    M-->>SV: jogador sem senha_hash
+    H-->>SV: senhaHash (scrypt)
+    SV->>M: criarJogador({nome, apelido, email, senhaHash})
+    M-->>SV: novoJogador (perfil JOGADOR, status ATIVO)
+    SV->>RP: inserir(novoJogador)
+    RP->>DB: collection("jogadores").add(documento)
+    DB-->>RP: referência do documento
+    RP-->>SV: jogadorSalvo
+    SV->>M: paraRespostaPublica(jogadorSalvo)
+    M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
-    C-->>R: res.status(201).json(jogador)
-    R-->>S: 201 Created + JSON
-    S->>T: exibirMensagem("Conta criada com sucesso!")
-    T-->>U: apresenta T03 Home
+    C-->>R: res.status(201).location(...).json(jogador)
+    R-->>A: 201 Created + JSON
+    A-->>S: jogador
+    S->>JA: salvarJogadorAtual(jogador) (localStorage)
+    S->>TL: exibirMensagem("Conta criada com sucesso! Abrindo a Home...")
+    S->>T: redireciona para index.html
+    T-->>U: apresenta a Home (T03)
 ```
 
 <a id="04-seq-consultar-jogador"></a>
@@ -315,8 +338,11 @@ title: "RF003 - Consultar Jogador (CRUD de 1 tabela - Read)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T05 Buscar jogadores<br/>jogadores.html
+    participant T as «view»<br/>jogadores.html (T05)
     participant S as «script»<br/>jogadores.js
+    participant P as «view»<br/>perfil.html (T07)
+    participant PS as «script»<br/>perfil.js
+    participant A as «script»<br/>utils/api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -325,38 +351,44 @@ sequenceDiagram
     participant DB as «database»<br/>Firestore: jogadores
 
     U->>T: digita parte do nome ou do apelido
-    T->>S: onBuscar(texto)
-    S->>R: fetch GET /api/jogadores?busca=texto
+    T->>S: evento input (ou submit) do formBusca
+    S->>S: buscarJogadores(texto)
+    S->>A: chamarApi('?busca=texto')
+    A->>R: fetch GET /api/jogadores?busca=texto
     R->>C: listar(req, res)
     C->>SV: buscarJogadores(texto)
     SV->>RP: listarAtivos()
-    RP->>DB: where("status", "==", "ATIVO").get()
+    RP->>DB: where("status", "==", "ATIVO").where("data_exclusao", "==", null).get()
     DB-->>RP: documentos
     RP-->>SV: jogadores ativos
-    SV->>SV: filtrar por nome ou apelido que contenha o texto
-    SV->>M: paraRespostaPublica(jogadores)
-    M-->>SV: lista sem senha_hash
+    SV->>SV: filtrar por nome ou apelido e ordenar por nome
+    SV->>M: paraRespostaPublica(jogador) para cada um
+    M-->>SV: jogadores sem senhaHash
     SV-->>C: lista de jogadores
     C-->>R: res.status(200).json(lista)
-    R-->>S: 200 OK + JSON
-    S->>T: renderizarLista(lista)
-    T-->>U: apresenta nome e apelido de cada jogador
-    U->>T: clica em um jogador
-    T->>S: onSelecionar(idJogador)
-    S->>R: fetch GET /api/jogadores/:id
+    R-->>A: 200 OK + JSON
+    A-->>S: lista
+    S->>T: criarLinhaJogador(jogador) para cada um
+    T-->>U: apresenta avatar, nome, apelido e "Ver perfil"
+    U->>T: clica em "Ver perfil"
+    T->>P: abre perfil.html?id=...
+    P->>PS: carregarPerfil()
+    PS->>A: chamarApi('/id')
+    A->>R: fetch GET /api/jogadores/:id
     R->>C: consultar(req, res)
     C->>SV: consultarJogador(id)
     SV->>RP: buscarPorId(id)
-    RP->>DB: doc("jogadores/" + id).get()
+    RP->>DB: doc(id).get()
     DB-->>RP: documento
     RP-->>SV: jogador
     SV->>M: paraRespostaPublica(jogador)
-    M-->>SV: jogador sem senha_hash
+    M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(200).json(jogador)
-    R-->>S: 200 OK + JSON
-    S->>T: renderizarPerfil(jogador)
-    T-->>U: apresenta T07 Perfil do jogador
+    R-->>A: 200 OK + JSON
+    A-->>PS: jogador
+    PS->>P: preencherPerfil(jogador)
+    P-->>U: apresenta foto, nome, apelido e data de cadastro do jogador
 ```
 
 <a id="05-seq-alterar-jogador"></a>
@@ -372,8 +404,11 @@ title: "RF004 - Alterar Jogador (CRUD de 1 tabela - Update)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T17 Editar perfil<br/>jogadores.html
-    participant S as «script»<br/>jogadores.js
+    participant T as «view»<br/>editar-perfil.html (T17)
+    participant S as «script»<br/>editar-perfil.js
+    participant TL as «script»<br/>utils/tela.js
+    participant JA as «script»<br/>utils/jogador-atual.js
+    participant A as «script»<br/>utils/api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -382,33 +417,43 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: altera foto, nome, apelido ou senha e clica em "Salvar"
-    T->>S: onSalvar(formulario)
-    S->>S: validarFormulario(dados)
-    S->>R: fetch PATCH /api/jogadores/:id {nome, apelido, fotoUrl, senha}
+    U->>T: altera nome, apelido ou foto (e, para trocar a senha, informa a senha atual e a nova) e clica em "Salvar"
+    T->>S: evento submit do formEdicao
+    S->>TL: lerFormulario(formEdicao)
+    TL-->>S: alterações (sem o e-mail, com senhaAtual só na troca de senha)
+    S->>A: chamarApi('/id', PATCH, alteracoes)
+    A->>R: fetch PATCH /api/jogadores/:id
     R->>C: alterar(req, res)
-    C->>SV: alterarJogador(id, dados)
+    C->>SV: alterarJogador(id, req.body)
     SV->>RP: buscarPorId(id)
-    RP->>DB: doc("jogadores/" + id).get()
+    RP->>DB: doc(id).get()
     DB-->>RP: documento
-    RP-->>SV: jogador atual
+    RP-->>SV: jogadorAtual
+    SV->>SV: validar nome, apelido e foto enviados
     SV->>RP: buscarPorApelido(novoApelido)
-    RP->>DB: where("apelido", "==", novoApelido).get()
+    RP->>DB: where("apelido", "==", novoApelido).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null (apelido livre)
+    Note over SV,H: os passos a seguir, até gerarHashSenha, só acontecem quando o jogador troca a senha
+    SV->>H: verificarSenha(senhaAtual, jogadorAtual.senhaHash)
+    H-->>SV: true (senha atual confere)
+    SV->>SV: validar nova senha e confirmação
     SV->>H: gerarHashSenha(novaSenha)
-    H-->>SV: novo senha_hash
+    H-->>SV: novo senhaHash
     SV->>RP: atualizar(id, alteracoes)
-    RP->>DB: doc("jogadores/" + id).update(alteracoes)
-    DB-->>RP: ok
-    RP-->>SV: jogador atualizado
-    SV->>M: paraRespostaPublica(jogador)
-    M-->>SV: jogador sem senha_hash
+    RP->>DB: doc(id).update(alteracoes) e doc(id).get()
+    DB-->>RP: documento atualizado
+    RP-->>SV: jogadorAtualizado
+    SV->>M: paraRespostaPublica(jogadorAtualizado)
+    M-->>SV: jogador sem senhaHash
     SV-->>C: jogador
     C-->>R: res.status(200).json(jogador)
-    R-->>S: 200 OK + JSON
-    S->>T: exibirMensagem("Perfil atualizado com sucesso!")
-    T-->>U: apresenta T07 Perfil do jogador
+    R-->>A: 200 OK + JSON
+    A-->>S: jogador
+    S->>JA: salvarJogadorAtual(jogador)
+    S->>T: preencherFormulario(jogador) e atualiza a sidebar
+    S->>TL: exibirMensagem("Perfil atualizado com sucesso!")
+    T-->>U: apresenta os dados atualizados e a mensagem
 ```
 
 <a id="06-seq-excluir-jogador"></a>
@@ -424,8 +469,11 @@ title: "RF005 - Excluir Jogador (CRUD de 1 tabela - Delete, exclusão lógica)"
 sequenceDiagram
     autonumber
     actor U as Jogador
-    participant T as «view»<br/>T07 Perfil do jogador<br/>jogadores.html
-    participant S as «script»<br/>jogadores.js
+    participant T as «view»<br/>editar-perfil.html (T17)
+    participant S as «script»<br/>editar-perfil.js
+    participant TL as «script»<br/>utils/tela.js
+    participant JA as «script»<br/>utils/jogador-atual.js
+    participant A as «script»<br/>utils/api.js
     participant R as «route»<br/>jogador-routes.js
     participant C as «controller»<br/>jogador-controller.js
     participant SV as «service»<br/>jogador-service.js
@@ -433,30 +481,38 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: clica em "Excluir conta"
-    T->>S: onExcluir()
-    S->>T: abrirDialogoConfirmacao()
-    T-->>U: "Esta ação não pode ser desfeita. Digite sua senha para confirmar."
-    U->>T: informa a senha e confirma
-    T->>S: onConfirmarExclusao(senha)
-    S->>R: fetch DELETE /api/jogadores/:id {senha}
+    U->>T: em "Excluir conta", digita a senha e clica em "Excluir minha conta"
+    T->>S: evento submit do formExclusao
+    S->>T: dialogoExclusao.showModal()
+    T-->>U: exibe a caixa "Excluir sua conta?"
+    U->>T: clica em "Sim, excluir conta"
+    T->>S: evento close do dialogoExclusao (confirmar)
+    S->>S: excluirConta()
+    S->>TL: lerFormulario(formExclusao)
+    TL-->>S: {senha}
+    S->>A: chamarApi('/id', DELETE, {senha})
+    A->>R: fetch DELETE /api/jogadores/:id
     R->>C: excluir(req, res)
-    C->>SV: excluirJogador(id, senha)
+    C->>SV: excluirJogador(id, req.body.senha)
     SV->>RP: buscarPorId(id)
-    RP->>DB: doc("jogadores/" + id).get()
+    RP->>DB: doc(id).get()
     DB-->>RP: documento
     RP-->>SV: jogador
-    SV->>H: verificarSenha(senha, jogador.senha_hash)
+    SV->>H: verificarSenha(senha, jogador.senhaHash)
     H-->>SV: true
-    SV->>RP: atualizar(id, {data_exclusao: agora})
-    RP->>DB: doc("jogadores/" + id).update({data_exclusao})
+    SV->>RP: atualizar(id, {dataExclusao: agora})
+    RP->>DB: doc(id).update({data_exclusao}) e doc(id).get()
     DB-->>RP: ok
     RP-->>SV: ok
     SV-->>C: ok
-    C-->>R: res.status(204).send()
-    R-->>S: 204 No Content
-    S->>T: encerrarSessao() e exibirMensagem("Conta excluída.")
-    T-->>U: apresenta T01 Entrar
+    C-->>R: res.status(204).end()
+    R-->>A: 204 No Content
+    A-->>S: null
+    S->>JA: salvarJogadorAtual(null)
+    S->>T: esconde o formulário
+    S->>TL: exibirMensagem("Conta excluída. Voltando para a Home...")
+    S->>T: redireciona para index.html
+    T-->>U: apresenta a Home (T03) sem jogador em uso
 ```
 
 <a id="07-seq-criar-partida"></a>
@@ -715,13 +771,13 @@ title: "TrucoHub - Diagrama de Implantação"
 ---
 flowchart LR
     subgraph CLIENTE["«device» Dispositivo do usuário"]
-        FRONTART["<b>«execution environment» Navegador web</b><br/><i>Chrome/Firefox/Edge 120+ (Windows 10+), Safari 17+ (iOS 17+)</i><br/>───────────<br/>«artifact» front-end<br/>index.html, jogadores.html, partidas.html<br/>style.css, jogadores.js, partidas.js"]
+        FRONTART["<b>«execution environment» Navegador web</b><br/><i>Chrome/Firefox/Edge 120+ (Windows 10+), Safari 17+ (iOS 17+)</i><br/>───────────<br/>«artifact» front-end<br/>index.html, cadastro.html, jogadores.html, perfil.html,<br/>editar-perfil.html, style.css<br/>js: home.js, cadastro.js, jogadores.js, perfil.js, editar-perfil.js<br/>js/utils: api.js, tela.js, jogador-atual.js, layout.js<br/>assets: icons/*.svg, images/logo-simbolo.svg"]
     end
 
     subgraph NETLIFY["«device» Servidor Netlify (nuvem)"]
         direction TB
-        DIST["<b>«execution environment» Netlify CDN</b><br/>───────────<br/>«artifact» dist/<br/>páginas, css, js e assets"]
-        API["<b>«execution environment» Netlify Functions (Node.js 26)</b><br/>───────────<br/>«artifact» API TrucoHub<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config/firebase.js"]
+        DIST["<b>«execution environment» Netlify CDN</b><br/>───────────<br/>«artifact» dist/<br/>páginas, css, js, js/utils e assets"]
+        API["<b>«execution environment» Netlify Functions (Node.js 22)</b><br/>───────────<br/>«artifact» netlify/functions/api.mjs (serverless-http)<br/>«artifact» API TrucoHub (Express)<br/>src/backend: app, routes, controllers, middlewares,<br/>services, repositories, models, utils, errors<br/>src/config: ambiente.js, banco-dados.js, firebase.js<br/><i>credenciais do Firebase em variáveis de ambiente:<br/>FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY</i>"]
     end
 
     subgraph GOOGLE["«device» Servidor Google Cloud (Firebase)"]
@@ -733,9 +789,9 @@ flowchart LR
 
     FRONTART <-->|"HTTPS (TLS 1.2+)<br/>páginas estáticas"| DIST
     FRONTART <-->|"HTTPS (TLS 1.2+)<br/>REST/JSON /api/*"| API
-    API <-->|"HTTPS / gRPC<br/>Firebase SDK"| DB
+    API <-->|"HTTPS / gRPC<br/>firebase-admin"| DB
     GIT -->|"git push (HTTPS)"| REPO
-    REPO -->|"webhook: build e deploy<br/>(netlify.toml)"| DIST
+    REPO -->|"webhook: build e deploy<br/>do site e da função (netlify.toml)"| NETLIFY
 
     classDef art fill:#fff8dc,stroke:#8a6d3b,color:#222
     class FRONTART,DIST,API,GIT,REPO art
