@@ -198,8 +198,15 @@ O TrucoHub será organizado de maneira modular, buscando facilitar a manutençã
 TrucoHub/
 │
 ├── docs/
+│   ├── backend/              # documentação do CRUD de Jogador
+│   ├── deploy/               # deploy no Netlify com Firebase
+│   ├── diagramas/            # classes, pacotes, sequência e implantação
 │   └── requisitos/
 │       └── Documento_de_Requisitos_TrucoHub.pdf
+│
+├── netlify/
+│   └── functions/
+│       └── api.mjs           # API Express publicada como Netlify Function
 │
 ├── Padrões Adotados/
 │   ├── Boas Práticas de Codificação.md
@@ -215,9 +222,15 @@ TrucoHub/
 ├── src/
 │   ├── backend/
 │   │   ├── controllers/
+│   │   ├── errors/
+│   │   ├── middlewares/
 │   │   ├── models/
+│   │   ├── repositories/
 │   │   ├── routes/
-│   │   └── services/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   ├── app.js
+│   │   └── server.js
 │   │
 │   ├── config/
 │   │
@@ -225,29 +238,36 @@ TrucoHub/
 │       ├── css/
 │       │   └── style.css
 │       ├── js/
-│       │   └── script.js
+│       │   ├── utils/
+│       │   └── <um script por tela>.js
 │       └── pages/
-│           └── index.html
+│           └── <uma página por tela>.html
 │
 ├── tests/
 │   ├── e2e/
 │   └── unit/
 │
 ├── .gitignore
+├── netlify.toml
+├── package.json
 └── README.md
 ```
 
 ### 5.2. Descrição dos diretórios
 
 - **`docs/`**: documentação do projeto.
+  - **`backend/`**: documentação do CRUD de Jogador (rotas, regras e telas).
+  - **`deploy/`**: como publicar o site e a API no Netlify com o Firebase.
+  - **`diagramas/`**: diagramas de classes, pacotes, sequência e implantação.
   - **`requisitos/`**: documento de requisitos (casos de uso, requisitos não funcionais, rastreabilidade com o protótipo e dicionário de dados).
+- **`netlify/functions/`**: a função do Netlify que publica a API (`/api/*`).
 - **`Padrões Adotados/`**: padrões da equipe, como as regras de verificação e análise de requisitos e as [boas práticas de codificação](Padrões%20Adotados/Boas%20Práticas%20de%20Codificação.md).
   - **`registros/`**: um arquivo por verificação dos requisitos, nomeado `verificacao-AAAA-MM-DD.md` com a data em que foi feita. Cada registro traz o resultado de cada requisito nas regras e o nome do revisor, que deve ser um integrante diferente do autor dos requisitos.
 - **`public/`**: arquivos estáticos utilizados pela aplicação, como ícones e imagens.
 - **`src/`**: contém o código-fonte principal do sistema.
   - **`backend/`**: componentes responsáveis pelas regras de negócio e processamento das requisições.
   - **`config/`**: configurações necessárias para o funcionamento da aplicação.
-  - **`frontend/`**: arquivos responsáveis pela interface e interação com o usuário (estilos, scripts e páginas).
+  - **`frontend/`**: arquivos responsáveis pela interface e interação com o usuário (estilos, scripts e páginas). Cada tela do protótipo tem uma página em `pages/` e um script em `js/`; o que várias telas usam fica em `js/utils/`.
 - **`tests/`**: arquivos relacionados aos testes automatizados.
   - **`e2e/`**: testes automatizados de ponta a ponta.
   - **`unit/`**: testes unitários.
@@ -330,7 +350,7 @@ chore: atualiza extensões ignoradas no .gitignore
 | Conteúdo | Pasta |
 |---|---|
 | Código do frontend (HTML, CSS, JavaScript das telas) | `src/frontend/` |
-| Código do backend (rotas, controllers, services, models) | `src/backend/` |
+| Código do backend (rotas, controllers, services, repositories, models) | `src/backend/` |
 | Configuração da aplicação (Firebase, variáveis) | `src/config/` |
 | Imagens e ícones | `public/assets/` |
 | Testes automatizados | `tests/` |
@@ -338,7 +358,7 @@ chore: atualiza extensões ignoradas no .gitignore
 | Diagramas (classes, pacotes, sequência, implantação) | `docs/diagramas/` |
 | Padrões da equipe (requisitos, codificação) | `Padrões Adotados/` |
 
-Documentação não fica dentro de `src/`, e código não fica dentro de `docs/`. Diagramas são versionados no formato editável (ex.: `.astah`, `.drawio`) e também em imagem (`.png`) ou `.pdf`, para serem vistos no GitHub.
+Documentação não fica dentro de `src/`, e código não fica dentro de `docs/`. Diagramas são versionados no formato editável (código Mermaid em `docs/diagramas/README.md`) e também em imagem (`.png`), para serem vistos no GitHub.
 
 ### 6.4. Arquivos ignorados (`.gitignore`)
 
@@ -367,7 +387,7 @@ A equipe segue 8 regras de codificação, descritas com exemplos no documento [B
 | BP01 | Padrão de notação: camelCase para variáveis e funções, PascalCase para classes, UPPER_SNAKE_CASE para constantes, kebab-case para arquivos. |
 | BP02 | Documentação com JSDoc em toda função exportada, citando o requisito (`@see RFxxx`); comentários explicam o porquê. |
 | BP03 | Funções pequenas (até 30 linhas e 3 parâmetros) com uma única responsabilidade. |
-| BP04 | Separação em camadas (routes, controllers, services, models), seguindo SOLID. |
+| BP04 | Separação em camadas (routes, controllers, services, repositories, models), seguindo SOLID. |
 | BP05 | Sem números e textos mágicos: valores do negócio em constantes nomeadas. |
 | BP06 | Tratamento de erros explícito, com `async`/`await`, `try`/`catch` e mensagens em português. |
 | BP07 | Não repetir código (DRY). |

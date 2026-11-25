@@ -2,7 +2,8 @@
  * Netlify Function que publica a API REST do backend (/api/*).
  *
  * O site no Netlify é estático; as chamadas a /api/* chegam a esta função
- * (veja `config.path` no fim do arquivo), que executa a mesma aplicação Express do servidor local.
+ * (veja `config.path` no fim do arquivo), que executa a mesma aplicação Express
+ * do servidor local.
  * O banco vem de BANCO_DADOS e a credencial do Firebase das variáveis FIREBASE_*,
  * configuradas no painel do Netlify.
  */
@@ -27,6 +28,9 @@ function converterCorpoJson(requisicao) {
     requisicao.body = undefined;
   }
 }
+
+/** Respostas HTTP que não têm corpo (No Content e Not Modified). */
+const STATUS_SEM_CORPO = [204, 304];
 
 const app = criarApp({ jogadorRepository: await criarJogadorRepository() });
 const executarApp = serverless(app, { request: converterCorpoJson });
@@ -55,16 +59,32 @@ export default async function api(requisicao, contexto) {
     isBase64Encoded: false
   }, contexto);
 
+  return criarResposta(resposta, requisicao.method);
+}
+
+/**
+ * Converte a resposta do serverless-http em Response da Web.
+ * @param {{ statusCode: number, headers?: object, multiValueHeaders?: object,
+ *   body: string, isBase64Encoded?: boolean }} resposta Resposta do Express.
+ * @param {string} metodo Método HTTP da requisição.
+ * @returns {Response}
+ */
+function criarResposta(resposta, metodo) {
   const cabecalhos = new Headers();
   for (const [nome, valor] of Object.entries(resposta.headers ?? {})) {
     cabecalhos.set(nome, String(valor));
   }
   for (const [nome, valores] of Object.entries(resposta.multiValueHeaders ?? {})) {
-    for (const valor of valores) cabecalhos.append(nome, String(valor));
+    for (const valor of valores) {
+      cabecalhos.append(nome, String(valor));
+    }
   }
-  const corpoResposta = resposta.isBase64Encoded ? Buffer.from(resposta.body, 'base64') : resposta.body;
-  const semCorpo = [204, 304].includes(resposta.statusCode) || requisicao.method === 'HEAD';
-  return new Response(semCorpo ? null : corpoResposta, { status: resposta.statusCode, headers: cabecalhos });
+  const semCorpo = STATUS_SEM_CORPO.includes(resposta.statusCode) || metodo === 'HEAD';
+  const corpo = resposta.isBase64Encoded ? Buffer.from(resposta.body, 'base64') : resposta.body;
+  return new Response(semCorpo ? null : corpo, {
+    status: resposta.statusCode,
+    headers: cabecalhos
+  });
 }
 
 /** Faz o Netlify encaminhar todas as chamadas a /api/* para esta função. */

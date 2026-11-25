@@ -6,7 +6,9 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { criarApp } from '../../src/backend/app.js';
-import { JogadorRepositoryMemoria } from '../../src/backend/repositories/jogador-repository-memoria.js';
+import {
+  JogadorRepositoryMemoria
+} from '../../src/backend/repositories/jogador-repository-memoria.js';
 
 /** Porta 0 faz o sistema escolher uma porta livre. */
 const PORTA_LIVRE = 0;

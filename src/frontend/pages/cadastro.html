@@ -5,43 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <title>Criar conta | TrucoHub</title>
   <script type="module" src="js/cadastro.js"></script>
 </head>
-<body class="pagina-autenticacao">
+<body>
   <!-- T02 – Criar conta (RF002). Tela de antes do login: sem a navegação principal. -->
-  <main class="autenticacao">
-    <div id="marca" class="marca-autenticacao"></div>
+  <div class="autenticacao">
+    <aside class="painel-marca">
+      <a class="logo grande" href="index.html">
+        <img src="assets/images/logo-simbolo.svg" alt="" width="34" height="30">
+        <span>TRUCOHUB</span>
+      </a>
+      <div>
+        <p class="chamada">Crie sua conta e chame a turma para a <em>mesa</em>.</p>
+        <p class="apoio">Com a conta você aparece na busca, recebe convites e entra no ranking.</p>
+      </div>
+      <p class="texto-suave">Seu apelido é como os amigos vão te encontrar.</p>
+    </aside>
 
-    <section class="cartao" aria-labelledby="titulo-cadastro">
-      <h1 id="titulo-cadastro">Criar conta</h1>
-      <p class="subtitulo">Preencha seus dados para começar a jogar.</p>
+    <main class="area-formulario">
+      <div class="formulario-autenticacao">
+        <header class="cabecalho-pagina com-voltar">
+          <a class="voltar so-mobile" href="index.html">
+            <span class="icone icone-voltar" aria-hidden="true"></span><span>Voltar</span>
+          </a>
+          <h1>Criar conta</h1>
+          <p class="subtitulo so-desktop">Leva menos de um minuto.</p>
+          <p class="subtitulo so-mobile">Seu apelido é como os amigos vão te encontrar.</p>
+        </header>
 
-      <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+        <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
 
-      <form id="form-cadastro" novalidate>
-        <label class="campo">Nome
-          <input name="nome" maxlength="80" autocomplete="name" placeholder="Seu nome" required>
-        </label>
-        <label class="campo">Apelido
-          <input name="apelido" maxlength="30" placeholder="@seuapelido" required>
-        </label>
-        <label class="campo">E-mail
-          <input name="email" type="email" maxlength="120" autocomplete="email" placeholder="voce@email.com" required>
-        </label>
-        <label class="campo">Senha
-          <input name="senha" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required>
-        </label>
-        <label class="campo">Confirmar senha
-          <input name="confirmacaoSenha" type="password" minlength="8" autocomplete="new-password" placeholder="Repita a senha" required>
-        </label>
-        <button type="submit" class="botao">Criar conta</button>
-      </form>
-    </section>
+        <form id="form-cadastro" novalidate>
+          <div class="linha-campos">
+            <label class="campo">Nome
+              <input name="nome" maxlength="80" autocomplete="name" placeholder="João Silva"
+                     required>
+            </label>
+            <label class="campo">Apelido
+              <input name="apelido" maxlength="30" placeholder="@joaozap" required>
+            </label>
+          </div>
+          <label class="campo">E-mail
+            <input name="email" type="email" maxlength="120" autocomplete="email"
+                   placeholder="voce@email.com" required>
+          </label>
+          <label class="campo">Senha
+            <input name="senha" type="password" minlength="8" autocomplete="new-password"
+                   placeholder="Mínimo de 8 caracteres" required>
+          </label>
+          <label class="campo">Confirmar senha
+            <input name="confirmacaoSenha" type="password" minlength="8"
+                   autocomplete="new-password" placeholder="Repita a senha" required>
+          </label>
+          <button type="submit" class="botao largo">Criar conta</button>
+        </form>
 
-    <p class="link-texto"><a href="index.html">Voltar para o início</a></p>
-  </main>
+        <p class="link-texto so-desktop"><a href="index.html">Voltar para o início</a></p>
+      </div>
+    </main>
+  </div>
 </body>
 </html>

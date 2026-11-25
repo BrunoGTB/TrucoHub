@@ -20,7 +20,7 @@ No site publicado, a API roda como Netlify Function. A configuração está em [
 
 ```text
 src/frontend/pages/*.html           telas (ver "Telas" abaixo)
-src/frontend/js/api.js              chama a API com fetch (usado por todas as telas)
+src/frontend/js/utils/api.js        chama a API com fetch (usado por todas as telas)
         │ HTTP / JSON
 src/backend/routes/jogador-routes.js            mapeia URL -> método do controller
 src/backend/controllers/jogador-controller.js   lê a requisição e define o status HTTP
@@ -35,16 +35,26 @@ Fluxo de dependências: `routes → controllers → services → repositories �
 
 ## Telas
 
-As telas seguem o protótipo do Figma (TrucoHub - Identidade Visual): tema escuro com destaque dourado, sidebar no desktop e barra inferior no mobile (`js/layout.js`), e os componentes do mapeamento em `css/style.css`.
+As telas seguem o protótipo do [Figma](https://www.figma.com/design/uCVdOtPQJ7I0i3izYB8LJE/TrucoHub---Identidade-Visual) (telas Desktop 1440 e Mobile 390): tema escuro com destaque dourado, fonte Sora, sidebar no desktop e barra inferior no mobile. Os ícones e a logo exportados do Figma ficam em `public/assets/`.
 
 | Tela do protótipo | Página | Script | Requisito |
 |---|---|---|---|
 | T02 Criar conta | `cadastro.html` | `js/cadastro.js` | RF002 |
 | T03 Home | `index.html` | `js/home.js` | — |
 | T05 Buscar jogadores | `jogadores.html` | `js/jogadores.js` | RF003 |
-| T07 Perfil do jogador | `perfil.html` | `js/perfil.js` | RF003, RF004, RF005 |
+| T07 Perfil do jogador | `perfil.html` | `js/perfil.js` | RF003 |
+| T17 Editar perfil | `editar-perfil.html` | `js/editar-perfil.js` | RF004, RF005 |
 
-Ainda não há login (T01). Até lá, o jogador que cria a conta fica guardado no navegador (`localStorage`) como o jogador em uso: ele aparece na sidebar e é o perfil aberto em `perfil.html` sem `?id=`. "Sair" só limpa essa informação. Os módulos Duplas, Partidas e Ranking aparecem desabilitados na navegação.
+O que várias telas usam fica em `js/utils/` (BP07):
+
+| Arquivo | Conteúdo |
+|---|---|
+| `api.js` | `chamarApi`: requisição à API e tratamento de erro |
+| `tela.js` | mensagens, leitura de formulário, avatar, datas e saudação |
+| `jogador-atual.js` | jogador em uso no navegador (`localStorage`) |
+| `layout.js` | sidebar, barra inferior e "Sair" |
+
+Ainda não há login (T01). Até lá, o jogador que cria a conta fica guardado no navegador como o jogador em uso: ele aparece na sidebar, é o perfil aberto em `perfil.html` sem `?id=` e é o único que `editar-perfil.html` altera ou exclui. No perfil de outro jogador aparece "Adicionar amigo" (desabilitado até existir o módulo de amizades). "Sair" só limpa o jogador em uso. Os módulos Duplas, Partidas, Em espera e Ranking aparecem desabilitados, e os números da Home e do Perfil mostram "—" até existirem partidas.
 
 ## Entidade Jogador
 
@@ -61,6 +71,8 @@ Ainda não há login (T01). Até lá, o jogador que cria a conta fica guardado n
 | dataCadastro | data_cadastro | Data atual no cadastro |
 | dataExclusao | data_exclusao | Preenchida na exclusão (exclusão lógica) |
 
+A exclusão é lógica: o documento continua na coleção `jogadores` do Firestore, com `data_exclusao` preenchida, para o histórico de partidas (RF005.3). A conta some da busca e do perfil, e o e-mail fica livre para um novo cadastro. O apelido continua reservado, porque aparece no histórico das partidas.
+
 O Firestore guarda também `apelido_busca` (apelido em minúsculas) para checar a unicidade sem diferenciar maiúsculas.
 
 ## Endpoints
@@ -70,8 +82,10 @@ O Firestore guarda também `apelido_busca` (apelido em minúsculas) para checar 
 | POST | `/api/jogadores` | `nome, apelido, email, senha, confirmacaoSenha` | 201 + jogador | RF002 |
 | GET | `/api/jogadores?busca=texto` | — | 200 + lista de jogadores ativos | RF003 |
 | GET | `/api/jogadores/:id` | — | 200 + jogador | RF003 |
-| PATCH | `/api/jogadores/:id` | qualquer um de `nome, apelido, fotoUrl, senha + confirmacaoSenha` | 200 + jogador | RF004 |
+| PATCH | `/api/jogadores/:id` | qualquer um de `nome, apelido, fotoUrl` ou `senhaAtual + senha + confirmacaoSenha` | 200 + jogador | RF004 |
 | DELETE | `/api/jogadores/:id` | `senha` | 204 | RF005 |
+
+Para trocar a senha, o PATCH exige a senha atual (`senhaAtual`): sem ela responde 400 e, se estiver errada, 401.
 
 Erros respondem `{ "mensagem": "..." }` com as mensagens do Documento de Requisitos: 400 (dados inválidos), 401 (senha incorreta), 404 (jogador não encontrado ou excluído) e 409 (apelido ou e-mail em uso). As respostas nunca trazem `senhaHash`.
 

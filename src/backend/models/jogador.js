@@ -48,7 +48,9 @@ export const PREFIXO_APELIDO = '@';
 /**
  * Monta um novo jogador com os valores padrão do dicionário de dados.
  * O id é definido pelo repository ao gravar.
- * @param {{ nome: string, apelido: string, email: string, senhaHash: string, fotoUrl?: string|null }} dados
+ * @param {{
+ *   nome: string, apelido: string, email: string, senhaHash: string, fotoUrl?: string|null
+ * }} dados
  * @returns {Omit<Jogador, 'id'>}
  * @see RF002
  */

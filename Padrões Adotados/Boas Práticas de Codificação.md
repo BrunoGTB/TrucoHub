@@ -140,16 +140,20 @@ function exibirMensagem(texto) { /* só atualiza a tela */ }
 **Regra:** o código segue as camadas da estrutura de pastas do README (seção 5). O backend é uma API em Node.js com Express e `firebase-admin`, e cada camada só chama a camada logo abaixo:
 
 ```text
-frontend (telas)  →  routes  →  controllers  →  services  →  models / Firestore
-  fetch() na API    URL e     lê a requisição   regras de     estrutura dos
-                    método    e devolve status  negócio       dados e acesso
+frontend (telas)  →  routes  →  controllers  →  services  →  repositories  →  Firestore
+  fetch() na API    URL e     lê a requisição   regras de     leitura e
+                    método    e devolve status  negócio       gravação no banco
 ```
+
+Os *models* descrevem a estrutura dos dados e são usados pelos *services* e *repositories*.
 
 1. O frontend (`src/frontend/`) **não** acessa o Firestore: ele chama a API com `fetch()`.
 2. As *routes* só ligam URL e método HTTP a um *controller*.
 3. Os *controllers* leem a requisição, chamam o *service* e devolvem a resposta com o status HTTP. Eles não contêm regra de negócio.
 4. As regras de negócio (ex.: a partida termina em 12 pontos) ficam nos *services*.
-5. O Firebase é inicializado em um único arquivo em `src/config/`, importado por quem precisa.
+5. Só os *repositories* leem e gravam no Firestore. O *service* recebe o *repository* pronto
+   (injeção de dependência), o que permite trocar o Firestore pelo banco em memória nos testes.
+6. O Firebase é inicializado em um único arquivo em `src/config/`, importado por quem precisa.
 
 **Por quê:** aplica o "S" (responsabilidade única) e o "D" (inversão de dependência) do SOLID. Se o banco mudar, só a camada de dados muda; as telas e as rotas continuam iguais.
 
@@ -176,7 +180,7 @@ export async function alterarJogador(req, res) {
 }
 ```
 
-**Verificação:** nenhum `import` do Firebase em `src/frontend/`; nenhum acesso ao Firestore (`db.collection`) em *routes* ou *controllers*; `initializeApp` aparece em um único arquivo.
+**Verificação:** nenhum `import` do Firebase em `src/frontend/`; nenhum acesso ao Firestore (`db.collection`) fora dos *repositories*; `initializeApp` aparece em um único arquivo.
 
 ---
 
@@ -307,7 +311,7 @@ O revisor (integrante diferente do autor) marca cada item antes de aprovar o Pul
 - [ ] **BP01** – nomes seguem a tabela de notação e não há abreviações.
 - [ ] **BP02** – funções exportadas têm JSDoc (com `@see RFxxx` quando implementam um requisito); não há código comentado.
 - [ ] **BP03** – nenhuma função com mais de 30 linhas ou mais de 3 parâmetros.
-- [ ] **BP04** – frontend, *routes* e *controllers* não acessam o Firestore diretamente.
+- [ ] **BP04** – só os *repositories* acessam o Firestore.
 - [ ] **BP05** – não há números ou nomes de coleção soltos no código.
 - [ ] **BP06** – não há `catch` vazio; mensagens ao usuário em português.
 - [ ] **BP07** – não há trecho de lógica duplicado.

@@ -5,43 +5,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <title>Home | TrucoHub</title>
-  <script type="module" src="js/layout.js"></script>
+  <script type="module" src="js/utils/layout.js"></script>
   <script type="module" src="js/home.js"></script>
 </head>
 <body data-pagina="home">
-  <!-- T03 – Home (protótipo do Figma). Partidas e convites entram nas próximas sprints. -->
+  <!-- T03 – Home. Partidas, convites e estatísticas chegam com os próximos módulos. -->
   <main class="principal">
     <header class="cabecalho-pagina">
       <div>
         <h1 id="saudacao">Bem-vindo ao TrucoHub</h1>
-        <p class="subtitulo">Organize partidas de truco, conte os pontos e acompanhe o ranking.</p>
+        <p id="resumo" class="subtitulo">Organize partidas de truco e acompanhe o ranking.</p>
       </div>
-      <a id="acao-principal" class="botao" href="cadastro.html">Criar conta</a>
+      <div class="acoes-cabecalho">
+        <span class="botao icone-so" aria-disabled="true" title="Notificações (em breve)">
+          <span class="icone icone-sino" aria-hidden="true"></span>
+          <span class="visualmente-oculto">Notificações</span>
+        </span>
+        <a id="acao-principal" class="botao" href="cadastro.html">Criar conta</a>
+        <span id="nova-partida" class="botao so-desktop" aria-disabled="true" title="Em breve"
+              hidden>
+          + Nova partida
+        </span>
+      </div>
     </header>
 
-    <section class="secao" aria-labelledby="titulo-atalhos">
-      <h2 id="titulo-atalhos">Atalhos</h2>
-      <div class="grade-cards">
-        <a class="card-estatistica" href="jogadores.html">
-          <span class="rotulo">Amigos</span>
-          <span class="valor">Buscar jogadores</span>
-          <span class="detalhe">Por nome ou apelido</span>
-        </a>
-        <a id="atalho-perfil" class="card-estatistica" href="perfil.html">
-          <span class="rotulo">Perfil</span>
-          <span class="valor">Meu perfil</span>
-          <span class="detalhe">Editar dados ou excluir a conta</span>
-        </a>
-        <div class="card-estatistica" aria-disabled="true">
-          <span class="rotulo">Partidas</span>
-          <span class="valor">Nova partida</span>
-          <span><span class="etiqueta neutro">Em breve</span></span>
-        </div>
+    <div class="grade-estatisticas">
+      <div class="card-estatistica">
+        <span class="rotulo">Partidas</span><span class="valor">—</span>
+        <span class="nota">Em breve</span>
       </div>
-    </section>
+      <div class="card-estatistica">
+        <span class="rotulo">Vitórias</span><span class="valor">—</span>
+        <span class="nota">Em breve</span>
+      </div>
+      <div class="card-estatistica">
+        <span class="rotulo">Aproveitamento</span><span class="valor">—</span>
+        <span class="nota">Em breve</span>
+      </div>
+      <div class="card-estatistica">
+        <span class="rotulo">Posição no ranking</span><span class="valor">—</span>
+        <span class="nota">Em breve</span>
+      </div>
+    </div>
+
+    <div class="colunas lateral">
+      <div class="secao">
+        <section class="painel destaque" aria-labelledby="titulo-andamento">
+          <h2 id="titulo-andamento">Partida em andamento</h2>
+          <p class="texto-suave">Nenhuma partida em andamento.</p>
+        </section>
+        <h2 class="titulo-secao">Últimas partidas</h2>
+        <p class="vazio">As partidas aparecem aqui quando o módulo de Partidas estiver pronto.</p>
+      </div>
+
+      <div class="secao">
+        <section class="painel" aria-labelledby="titulo-convites">
+          <h2 id="titulo-convites">Convites pendentes</h2>
+          <p class="texto-suave">Nenhum convite por enquanto.</p>
+        </section>
+        <h2 class="titulo-secao">Atalhos</h2>
+        <ul class="lista-atalhos">
+          <li>
+            <span class="atalho" aria-disabled="true" title="Em breve">
+              <span class="icone icone-duplas" aria-hidden="true"></span>Formar dupla
+            </span>
+          </li>
+          <li>
+            <a class="atalho" href="jogadores.html">
+              <span class="icone icone-busca" aria-hidden="true"></span>Buscar jogadores
+            </a>
+          </li>
+          <li>
+            <span class="atalho" aria-disabled="true" title="Em breve">
+              <span class="icone icone-ranking" aria-hidden="true"></span>Meu desempenho
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
   </main>
 </body>
 </html>
