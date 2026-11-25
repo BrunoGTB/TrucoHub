@@ -26,7 +26,7 @@ Diagramas dos itens #19 (classes de domínio e pacotes), #20 (sequência) e #25 
 - **Camadas do back-end:** `routes` → `controllers` → `services` → `repositories` → Firestore, com `models` (entidades e regras de formato) e `utils` (hash scrypt da senha). Os nomes dos arquivos seguem o padrão kebab-case do CRUD de Jogador (#24).
 - **CRUD de 1 tabela:** Jogador (RF002 a RF005). A exclusão é lógica: preenche `data_exclusao`.
 - **CRUD de 3 tabelas:** Partida, com Dupla e Jogador (RF012 a RF015). `convite_partida` aparece como tabela intermediária.
-- **Diagramas de sequência simplificados:** mostram só o fluxo principal, sem `loop` nem `alt`, como pede a sprint.
+- **Diagramas de sequência simplificados:** mostram só o fluxo principal, sem `loop` nem `alt`, como pede a sprint. A única exceção é um bloco `opt` em Alterar Jogador, para a conferência da senha atual, que só acontece na troca de senha.
 - **Implantação:** front-end estático na CDN do Netlify (NF012), API Node.js 22 em Netlify Functions (`netlify/functions/api.mjs`) e banco no Cloud Firestore, tudo por HTTPS com TLS 1.2+ (NF009).
 
 <a id="01-classes-dominio"></a>
@@ -417,10 +417,10 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: altera nome, apelido, foto ou senha e clica em "Salvar"
+    U->>T: altera nome, apelido ou foto (e, para trocar a senha, informa a senha atual e a nova) e clica em "Salvar"
     T->>S: evento submit do formEdicao
     S->>TL: lerFormulario(formEdicao)
-    TL-->>S: alterações (sem o e-mail)
+    TL-->>S: alterações (sem o e-mail, com senhaAtual só na troca de senha)
     S->>A: chamarApi('/id', PATCH, alteracoes)
     A->>R: fetch PATCH /api/jogadores/:id
     R->>C: alterar(req, res)
@@ -429,13 +429,18 @@ sequenceDiagram
     RP->>DB: doc(id).get()
     DB-->>RP: documento
     RP-->>SV: jogadorAtual
-    SV->>SV: validar nome, apelido, foto e senha enviados
+    SV->>SV: validar nome, apelido e foto enviados
     SV->>RP: buscarPorApelido(novoApelido)
     RP->>DB: where("apelido", "==", novoApelido).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null (apelido livre)
-    SV->>H: gerarHashSenha(novaSenha)
-    H-->>SV: novo senhaHash
+    opt troca de senha (dados.senha preenchida)
+        SV->>H: verificarSenha(senhaAtual, jogadorAtual.senhaHash)
+        H-->>SV: true (senha atual confere)
+        SV->>SV: validar nova senha e confirmação
+        SV->>H: gerarHashSenha(novaSenha)
+        H-->>SV: novo senhaHash
+    end
     SV->>RP: atualizar(id, alteracoes)
     RP->>DB: doc(id).update(alteracoes) e doc(id).get()
     DB-->>RP: documento atualizado
