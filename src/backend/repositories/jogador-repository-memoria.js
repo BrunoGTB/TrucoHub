@@ -44,12 +44,19 @@ export class JogadorRepositoryMemoria {
   }
 
   /**
-   * Busca pelo e-mail (já normalizado em minúsculas pelo service).
+   * Busca pelo e-mail entre as contas não excluídas. O e-mail de uma conta
+   * excluída fica livre para um novo cadastro (RF002.2).
    * @param {string} email
    * @returns {Promise<import('../models/jogador.js').Jogador|null>}
    */
   async buscarPorEmail(email) {
-    return this.#buscarPorCampo('email', email.toLowerCase());
+    const emailMinusculo = email.toLowerCase();
+    for (const jogador of this.#jogadores.values()) {
+      if (jogador.email.toLowerCase() === emailMinusculo && jogador.dataExclusao === null) {
+        return { ...jogador };
+      }
+    }
+    return null;
   }
 
   /**

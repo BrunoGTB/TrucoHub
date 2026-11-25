@@ -100,11 +100,18 @@ export class JogadorRepositoryFirestore {
   }
 
   /**
+   * Busca pelo e-mail entre as contas não excluídas. O e-mail de uma conta
+   * excluída fica livre para um novo cadastro (RF002.2).
    * @param {string} email
    * @returns {Promise<import('../models/jogador.js').Jogador|null>}
    */
   async buscarPorEmail(email) {
-    return this.#buscarPrimeiro('email', email.toLowerCase());
+    const resultado = await this.#colecao
+      .where('email', '==', email.toLowerCase())
+      .where('data_exclusao', '==', null)
+      .limit(1)
+      .get();
+    return resultado.empty ? null : paraJogador(resultado.docs[0]);
   }
 
   /**

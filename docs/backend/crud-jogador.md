@@ -71,6 +71,8 @@ Ainda não há login (T01). Até lá, o jogador que cria a conta fica guardado n
 | dataCadastro | data_cadastro | Data atual no cadastro |
 | dataExclusao | data_exclusao | Preenchida na exclusão (exclusão lógica) |
 
+A exclusão é lógica: o documento continua na coleção `jogadores` do Firestore, com `data_exclusao` preenchida, para o histórico de partidas (RF005.3). A conta some da busca e do perfil, e o e-mail fica livre para um novo cadastro. O apelido continua reservado, porque aparece no histórico das partidas.
+
 O Firestore guarda também `apelido_busca` (apelido em minúsculas) para checar a unicidade sem diferenciar maiúsculas.
 
 ## Endpoints

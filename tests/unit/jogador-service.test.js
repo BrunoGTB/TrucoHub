@@ -215,5 +215,23 @@ describe('JogadorService', () => {
       await assert.rejects(service.consultarJogador(id), { statusHttp: 404 });
       assert.equal((await service.buscarJogadores()).length, 0);
     });
+
+    it('libera o e-mail da conta excluída para um novo cadastro', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await service.excluirJogador(id, SENHA_VALIDA);
+      const novo = await service.cadastrarJogador(dadosCadastro({ apelido: 'novoapelido' }));
+      assert.notEqual(novo.id, id);
+      await assert.rejects(service.cadastrarJogador(dadosCadastro({ apelido: 'outro' })), {
+        message: MENSAGENS.EMAIL_EM_USO
+      });
+    });
+
+    it('mantém o apelido da conta excluída reservado', async () => {
+      const { id } = await service.cadastrarJogador(dadosCadastro());
+      await service.excluirJogador(id, SENHA_VALIDA);
+      await assert.rejects(service.cadastrarJogador(dadosCadastro({ email: 'novo@x.com' })), {
+        message: MENSAGENS.APELIDO_EM_USO
+      });
+    });
   });
 });
