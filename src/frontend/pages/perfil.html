@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Perfil | TrucoHub</title>
+  <script type="module" src="js/layout.js"></script>
+  <script type="module" src="js/perfil.js"></script>
+</head>
+<body data-pagina="perfil">
+  <!-- T07 – Perfil do jogador: consultar (RF003), editar (RF004) e excluir (RF005). -->
+  <main class="principal">
+    <header class="cabecalho-pagina">
+      <div>
+        <h1>Perfil</h1>
+        <p class="subtitulo">Veja e edite os dados da conta.</p>
+      </div>
+    </header>
+
+    <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+
+    <section id="sem-jogador" class="cartao vazio" hidden>
+      <p>Nenhum perfil selecionado.</p>
+      <div class="acoes acoes-centro">
+        <a class="botao" href="cadastro.html">Criar conta</a>
+        <a class="botao fantasma" href="jogadores.html">Buscar jogadores</a>
+      </div>
+    </section>
+
+    <div id="conteudo-perfil" hidden>
+      <div class="perfil-topo">
+        <span id="perfil-avatar"></span>
+        <div>
+          <div id="perfil-nome" class="nome"></div>
+          <div id="perfil-detalhe" class="detalhe"></div>
+        </div>
+      </div>
+
+      <!-- RF004 – Alterar Jogador -->
+      <section class="cartao secao" aria-labelledby="titulo-edicao">
+        <h2 id="titulo-edicao">Editar perfil</h2>
+        <form id="form-edicao" novalidate>
+          <div class="grade-campos">
+            <label class="campo">Nome
+              <input name="nome" maxlength="80" autocomplete="name" required>
+            </label>
+            <label class="campo">Apelido
+              <input name="apelido" maxlength="30" required>
+            </label>
+            <label class="campo">E-mail (não pode ser alterado)
+              <input name="email" readonly>
+            </label>
+            <label class="campo">Endereço da foto
+              <input name="fotoUrl" type="url" maxlength="255" placeholder="https://...">
+            </label>
+            <label class="campo">Nova senha (opcional)
+              <input name="senha" type="password" minlength="8" autocomplete="new-password">
+            </label>
+            <label class="campo">Confirmar nova senha
+              <input name="confirmacaoSenha" type="password" minlength="8" autocomplete="new-password">
+            </label>
+          </div>
+          <div class="acoes">
+            <button type="submit" class="botao">Salvar</button>
+            <button type="reset" id="botao-desfazer" class="botao fantasma">Desfazer alterações</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- RF005 – Excluir Jogador -->
+      <section class="cartao secao zona-perigo" aria-labelledby="titulo-exclusao">
+        <h2 id="titulo-exclusao">Excluir conta</h2>
+        <form id="form-exclusao" novalidate>
+          <p>Esta ação não pode ser desfeita. Digite a senha para confirmar.</p>
+          <label class="campo">Senha
+            <input name="senha" type="password" autocomplete="current-password" required>
+          </label>
+          <div class="acoes">
+            <button type="submit" class="botao perigo">Excluir conta</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

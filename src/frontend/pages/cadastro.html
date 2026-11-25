@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Criar conta | TrucoHub</title>
+  <script type="module" src="js/cadastro.js"></script>
+</head>
+<body class="pagina-autenticacao">
+  <!-- T02 – Criar conta (RF002). Tela de antes do login: sem a navegação principal. -->
+  <main class="autenticacao">
+    <div id="marca" class="marca-autenticacao"></div>
+
+    <section class="cartao" aria-labelledby="titulo-cadastro">
+      <h1 id="titulo-cadastro">Criar conta</h1>
+      <p class="subtitulo">Preencha seus dados para começar a jogar.</p>
+
+      <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+
+      <form id="form-cadastro" novalidate>
+        <label class="campo">Nome
+          <input name="nome" maxlength="80" autocomplete="name" placeholder="Seu nome" required>
+        </label>
+        <label class="campo">Apelido
+          <input name="apelido" maxlength="30" placeholder="@seuapelido" required>
+        </label>
+        <label class="campo">E-mail
+          <input name="email" type="email" maxlength="120" autocomplete="email" placeholder="voce@email.com" required>
+        </label>
+        <label class="campo">Senha
+          <input name="senha" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required>
+        </label>
+        <label class="campo">Confirmar senha
+          <input name="confirmacaoSenha" type="password" minlength="8" autocomplete="new-password" placeholder="Repita a senha" required>
+        </label>
+        <button type="submit" class="botao">Criar conta</button>
+      </form>
+    </section>
+
+    <p class="link-texto"><a href="index.html">Voltar para o início</a></p>
+  </main>
+</body>
+</html>
