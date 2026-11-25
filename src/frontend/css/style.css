@@ -640,6 +640,11 @@ form {
   color: var(--cor-erro);
 }
 
+.botao.perigo.cheio {
+  background: var(--cor-erro);
+  color: var(--cor-texto);
+}
+
 .botao.icone-so {
   padding: 10px;
   background: var(--cor-superficie-2);
@@ -979,4 +984,39 @@ form {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---------- Caixa de confirmação (dialog) ---------- */
+
+.dialogo {
+  width: min(440px, calc(100% - 32px));
+  margin: auto;
+  padding: 28px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-erro);
+  border-radius: var(--raio-painel);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 70%);
+}
+
+.dialogo h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dialogo .acoes {
+  justify-content: flex-end;
+}
+
+@media (max-width: 599px) {
+  .dialogo .acoes {
+    flex-direction: column-reverse;
+  }
+
+  .dialogo .acoes .botao {
+    width: 100%;
+  }
 }

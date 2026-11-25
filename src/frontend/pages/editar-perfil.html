@@ -93,6 +93,21 @@
         </form>
       </section>
     </div>
+
+    <!-- Caixa de confirmação da exclusão (RF005), exibida sobre a própria tela -->
+    <dialog id="dialogo-exclusao" class="dialogo" aria-labelledby="titulo-dialogo-exclusao">
+      <form method="dialog" class="pilha">
+        <h2 id="titulo-dialogo-exclusao">Excluir sua conta?</h2>
+        <p class="texto-suave">
+          Sua conta deixa de aparecer na busca e você não consegue mais usá-la.
+          Esta ação não pode ser desfeita.
+        </p>
+        <div class="acoes">
+          <button value="cancelar" class="botao fantasma" autofocus>Cancelar</button>
+          <button value="confirmar" class="botao perigo cheio">Sim, excluir conta</button>
+        </div>
+      </form>
+    </dialog>
   </main>
 </body>
 </html>

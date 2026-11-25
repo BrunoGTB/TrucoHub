@@ -12,6 +12,7 @@ const ESPERA_REDIRECIONAR_MS = 1200;
 
 const formEdicao = document.querySelector('#form-edicao');
 const formExclusao = document.querySelector('#form-exclusao');
+const dialogoExclusao = document.querySelector('#dialogo-exclusao');
 const idJogador = lerJogadorAtual()?.id;
 
 /**
@@ -70,8 +71,32 @@ formEdicao.addEventListener('submit', async (evento) => {
   }
 });
 
-formExclusao.addEventListener('submit', async (evento) => {
+/**
+ * Pede a senha e abre a caixa de confirmação antes de excluir a conta.
+ * A exclusão só acontece quando o jogador escolhe "Sim, excluir conta".
+ */
+formExclusao.addEventListener('submit', (evento) => {
   evento.preventDefault();
+  if (!formExclusao.elements.senha.value) {
+    exibirMensagem('Digite sua senha para excluir a conta.', 'erro');
+    formExclusao.elements.senha.focus();
+    return;
+  }
+  dialogoExclusao.returnValue = '';
+  dialogoExclusao.showModal();
+});
+
+dialogoExclusao.addEventListener('close', () => {
+  if (dialogoExclusao.returnValue === 'confirmar') {
+    excluirConta();
+  }
+});
+
+/**
+ * Exclui a conta do jogador em uso e volta para a Home.
+ * @see RF005
+ */
+async function excluirConta() {
   try {
     await chamarApi(`/${encodeURIComponent(idJogador)}`, {
       metodo: 'DELETE',
@@ -86,7 +111,7 @@ formExclusao.addEventListener('submit', async (evento) => {
   } catch (erro) {
     exibirMensagem(erro.message, 'erro');
   }
-});
+}
 
 document.querySelector('#botao-trocar-foto').addEventListener('click', () => {
   const campoFoto = document.querySelector('#campo-foto');
