@@ -14,6 +14,8 @@ Abra http://localhost:3000/jogadores.html. Para rodar os testes: `npm test`.
 
 Com `BANCO_DADOS=memoria` (padrão), os dados ficam em memória e somem ao reiniciar. Para usar o Cloud Firestore, defina `BANCO_DADOS=firestore` e aponte `GOOGLE_APPLICATION_CREDENTIALS` para o JSON da conta de serviço do Firebase (nunca envie esse arquivo para o Git).
 
+No site publicado, a API roda como Netlify Function. A configuração está em [Publicação no Netlify com o Firebase](../deploy/netlify-firebase.md).
+
 ## Camadas
 
 ```text
@@ -25,7 +27,8 @@ src/backend/controllers/jogador-controller.js   lê a requisição e define o st
 src/backend/services/jogador-service.js         validações e regras de negócio
 src/backend/repositories/jogador-repository-*.js  acesso ao banco (Firestore ou memória)
 src/backend/models/jogador.js                   campos, constantes e valores padrão
-src/config/                                     ambiente e inicialização do Firebase
+src/config/                                     ambiente, escolha do banco e inicialização do Firebase
+netlify/functions/api.mjs                       a mesma API no Netlify (site publicado)
 ```
 
 Fluxo de dependências: `routes → controllers → services → repositories → Firestore`. O service recebe o repository pelo construtor (montado em `src/backend/app.js`), então os testes usam o repository em memória sem mudar o resto.
