@@ -302,7 +302,7 @@ sequenceDiagram
     DB-->>RP: nenhum documento
     RP-->>SV: null
     SV->>RP: buscarPorEmail(email)
-    RP->>DB: where("email", "==", email).limit(1).get()
+    RP->>DB: where("email", "==", email).where("data_exclusao", "==", null).limit(1).get()
     DB-->>RP: nenhum documento
     RP-->>SV: null
     SV->>H: gerarHashSenha(senha)
@@ -481,8 +481,13 @@ sequenceDiagram
     participant RP as «repository»<br/>jogador-repository-firestore.js
     participant DB as «database»<br/>Firestore: jogadores
 
-    U->>T: em "Excluir conta", digita a senha e confirma
+    U->>T: em "Excluir conta", digita a senha e clica em "Excluir minha conta"
     T->>S: evento submit do formExclusao
+    S->>T: dialogoExclusao.showModal()
+    T-->>U: exibe a caixa "Excluir sua conta?"
+    U->>T: clica em "Sim, excluir conta"
+    T->>S: evento close do dialogoExclusao (confirmar)
+    S->>S: excluirConta()
     S->>TL: lerFormulario(formExclusao)
     TL-->>S: {senha}
     S->>A: chamarApi('/id', DELETE, {senha})
