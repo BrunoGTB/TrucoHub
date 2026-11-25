@@ -1,1 +1,622 @@
-/* Criação do Arquivo style.css  */
+/*
+ * Estilos base do TrucoHub, seguindo o protótipo do Figma
+ * ("TrucoHub - Identidade Visual", página "04 - Desktop e Mobile").
+ *
+ * As cores vêm das variáveis do Figma (cor/...) e os componentes seguem os
+ * do mapeamento: botão, campo, avatar, etiqueta, card, linha de pessoa,
+ * sidebar desktop e barra inferior mobile.
+ */
+
+:root {
+  /* Cores (variáveis do Figma) */
+  --cor-fundo: #121212;
+  --cor-superficie: #1c1c1c;
+  --cor-superficie-2: #262626;
+  --cor-borda: #333333;
+  --cor-texto: #f5f1ea;
+  --cor-texto-suave: #a39e94;
+  --cor-dourado: #cf9642;
+  --cor-dourado-claro: #fed291;
+  --cor-sobre-dourado: #1c1c1c;
+  --cor-sucesso: #4caf7a;
+  --cor-erro: #e05252;
+
+  /* Medidas */
+  --raio: 10px;
+  --raio-cartao: 12px;
+  --altura-minima-toque: 44px; /* NF002 */
+  --largura-sidebar: 264px;
+  --altura-barra-inferior: 84px;
+
+  --fonte: 'Sora', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fonte);
+  font-size: 15px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+a {
+  color: var(--cor-dourado);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- Casca: sidebar (desktop) e barra inferior (mobile) ---------- */
+
+.casca {
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: none;
+}
+
+.barra-inferior {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  height: var(--altura-barra-inferior);
+  padding: 8px 12px 20px;
+  background: var(--cor-superficie);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.aba {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+}
+
+.aba.ativa {
+  font-weight: 600;
+  color: var(--cor-dourado);
+}
+
+.principal {
+  padding: 24px 16px calc(var(--altura-barra-inferior) + 24px);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.topo-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--cor-superficie);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+@media (min-width: 900px) {
+  .casca {
+    display: grid;
+    grid-template-columns: var(--largura-sidebar) 1fr;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    height: 100vh;
+    padding: 28px 16px 24px;
+    background: var(--cor-superficie);
+    border-right: 1px solid var(--cor-borda);
+  }
+
+  .barra-inferior,
+  .topo-mobile {
+    display: none;
+  }
+
+  .principal {
+    width: 100%;
+    padding: 40px 48px;
+  }
+}
+
+.marca {
+  padding-left: 8px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 12px 14px;
+  border-radius: var(--raio);
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+}
+
+.item-menu:hover {
+  background: var(--cor-superficie-2);
+}
+
+.item-menu.ativa {
+  background: var(--cor-superficie-2);
+  font-weight: 600;
+  color: var(--cor-dourado);
+}
+
+.item-menu[aria-disabled='true'],
+.aba[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.item-menu[aria-disabled='true']:hover {
+  background: none;
+}
+
+.icone {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding: 0 8px;
+}
+
+.usuario-nome {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.usuario-acao {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  color: var(--cor-texto-suave);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.usuario-acao:hover {
+  color: var(--cor-texto);
+}
+
+/* ---------- Cabeçalho da página ---------- */
+
+.cabecalho-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cabecalho-pagina h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.subtitulo {
+  margin: 6px 0 0;
+  color: var(--cor-texto-suave);
+}
+
+.secao + .secao {
+  margin-top: 32px;
+}
+
+.secao h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+/* ---------- Cartão ---------- */
+
+.cartao {
+  padding: 24px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-cartao);
+}
+
+.cartao-estreito {
+  max-width: 440px;
+}
+
+.grade-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+
+.card-estatistica {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-cartao);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.card-estatistica:hover {
+  border-color: var(--cor-dourado);
+}
+
+.card-estatistica .rotulo {
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+}
+
+.card-estatistica .valor {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.card-estatistica .detalhe {
+  font-size: 12px;
+  color: var(--cor-dourado);
+}
+
+/* ---------- Formulário (componente Campo) ---------- */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+}
+
+.campo input {
+  min-height: var(--altura-minima-toque);
+  padding: 14px;
+  background: var(--cor-superficie-2);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--cor-texto);
+}
+
+.campo input::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+.campo input:focus {
+  outline: none;
+  border-color: var(--cor-dourado);
+}
+
+.campo input[readonly] {
+  color: var(--cor-texto-suave);
+  cursor: not-allowed;
+}
+
+.grade-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+}
+
+.busca {
+  flex-direction: row;
+  gap: 12px;
+}
+
+.busca .campo {
+  flex: 1;
+}
+
+/* ---------- Botão ---------- */
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--altura-minima-toque);
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--raio);
+  background: var(--cor-dourado);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cor-sobre-dourado);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.botao:hover {
+  filter: brightness(1.08);
+}
+
+.botao.secundario {
+  background: transparent;
+  border: 1.5px solid var(--cor-dourado);
+  color: var(--cor-dourado);
+}
+
+.botao.fantasma {
+  background: var(--cor-superficie-2);
+  color: var(--cor-texto);
+}
+
+.botao.perigo {
+  background: transparent;
+  border: 1.5px solid var(--cor-erro);
+  color: var(--cor-erro);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.link-texto {
+  margin: 0;
+  font-size: 14px;
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- Avatar e etiqueta ---------- */
+
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  background: var(--cor-superficie-2);
+  border: 1.5px solid var(--cor-dourado);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-dourado);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar.grande {
+  width: 72px;
+  height: 72px;
+  font-size: 24px;
+}
+
+.etiqueta {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--cor-superficie-2);
+  border: 1px solid var(--cor-dourado);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-dourado);
+}
+
+.etiqueta.neutro {
+  border-color: transparent;
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- Linha de pessoa (lista de jogadores) ---------- */
+
+.lista-pessoas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linha-pessoa {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 14px 16px;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-cartao);
+}
+
+.linha-pessoa .textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.linha-pessoa .nome {
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.linha-pessoa .detalhe {
+  font-size: 13px;
+  color: var(--cor-texto-suave);
+  overflow-wrap: anywhere;
+}
+
+.linha-pessoa .acao {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cor-dourado);
+  text-decoration: none;
+}
+
+.vazio {
+  padding: 24px;
+  text-align: center;
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- Perfil ---------- */
+
+.perfil-topo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.perfil-topo .nome {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.perfil-topo .detalhe {
+  margin-top: 4px;
+  color: var(--cor-texto-suave);
+}
+
+.zona-perigo {
+  border-color: var(--cor-erro);
+}
+
+.zona-perigo h2 {
+  color: var(--cor-erro);
+}
+
+.zona-perigo p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- Mensagem de retorno ---------- */
+
+.mensagem {
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  background: var(--cor-superficie-2);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  font-weight: 600;
+}
+
+.mensagem.sucesso {
+  border-color: var(--cor-sucesso);
+  color: var(--cor-sucesso);
+}
+
+.mensagem.erro {
+  border-color: var(--cor-erro);
+  color: var(--cor-erro);
+}
+
+/* ---------- Telas de antes do login (T01, T02) ---------- */
+
+.autenticacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+.autenticacao .cartao {
+  width: 100%;
+}
+
+.autenticacao h1 {
+  font-size: 24px;
+}
+
+.autenticacao .subtitulo {
+  margin-bottom: 24px;
+}
+
+.autenticacao form .botao {
+  margin-top: 8px;
+}
+
+/* ---------- Utilitários ---------- */
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.acoes-centro {
+  justify-content: center;
+}
+
+.card-estatistica[aria-disabled='true'] {
+  opacity: 0.6;
+}

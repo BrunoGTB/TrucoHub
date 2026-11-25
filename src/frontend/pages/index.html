@@ -1,13 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrucoHub</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Home | TrucoHub</title>
+  <script type="module" src="js/layout.js"></script>
+  <script type="module" src="js/home.js"></script>
 </head>
-<body>
-    <h1>Commit Inicial!</h1>
-    <p>Bruno passou por aqui!</p>
-    <h2>Gabriel chegou até aqui!</h2>
+<body data-pagina="home">
+  <!-- T03 – Home (protótipo do Figma). Partidas e convites entram nas próximas sprints. -->
+  <main class="principal">
+    <header class="cabecalho-pagina">
+      <div>
+        <h1 id="saudacao">Bem-vindo ao TrucoHub</h1>
+        <p class="subtitulo">Organize partidas de truco, conte os pontos e acompanhe o ranking.</p>
+      </div>
+      <a id="acao-principal" class="botao" href="cadastro.html">Criar conta</a>
+    </header>
+
+    <section class="secao" aria-labelledby="titulo-atalhos">
+      <h2 id="titulo-atalhos">Atalhos</h2>
+      <div class="grade-cards">
+        <a class="card-estatistica" href="jogadores.html">
+          <span class="rotulo">Amigos</span>
+          <span class="valor">Buscar jogadores</span>
+          <span class="detalhe">Por nome ou apelido</span>
+        </a>
+        <a id="atalho-perfil" class="card-estatistica" href="perfil.html">
+          <span class="rotulo">Perfil</span>
+          <span class="valor">Meu perfil</span>
+          <span class="detalhe">Editar dados ou excluir a conta</span>
+        </a>
+        <div class="card-estatistica" aria-disabled="true">
+          <span class="rotulo">Partidas</span>
+          <span class="valor">Nova partida</span>
+          <span><span class="etiqueta neutro">Em breve</span></span>
+        </div>
+      </div>
+    </section>
+  </main>
 </body>
 </html>

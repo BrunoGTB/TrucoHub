@@ -10,7 +10,7 @@ cp .env.example .env   # opcional; sem .env o banco é a memória
 npm run dev
 ```
 
-Abra http://localhost:3000/jogadores.html. Para rodar os testes: `npm test`.
+Abra http://localhost:3000/. Para rodar os testes: `npm test`.
 
 Com `BANCO_DADOS=memoria` (padrão), os dados ficam em memória e somem ao reiniciar. Para usar o Cloud Firestore, defina `BANCO_DADOS=firestore` e aponte `GOOGLE_APPLICATION_CREDENTIALS` para o JSON da conta de serviço do Firebase (nunca envie esse arquivo para o Git).
 
@@ -19,8 +19,8 @@ No site publicado, a API roda como Netlify Function. A configuração está em [
 ## Camadas
 
 ```text
-src/frontend/pages/jogadores.html   tela (formulários)
-src/frontend/js/jogadores.js        chama a API com fetch
+src/frontend/pages/*.html           telas (ver "Telas" abaixo)
+src/frontend/js/api.js              chama a API com fetch (usado por todas as telas)
         │ HTTP / JSON
 src/backend/routes/jogador-routes.js            mapeia URL -> método do controller
 src/backend/controllers/jogador-controller.js   lê a requisição e define o status HTTP
@@ -32,6 +32,19 @@ netlify/functions/api.mjs                       a mesma API no Netlify (site pub
 ```
 
 Fluxo de dependências: `routes → controllers → services → repositories → Firestore`. O service recebe o repository pelo construtor (montado em `src/backend/app.js`), então os testes usam o repository em memória sem mudar o resto.
+
+## Telas
+
+As telas seguem o protótipo do Figma (TrucoHub - Identidade Visual): tema escuro com destaque dourado, sidebar no desktop e barra inferior no mobile (`js/layout.js`), e os componentes do mapeamento em `css/style.css`.
+
+| Tela do protótipo | Página | Script | Requisito |
+|---|---|---|---|
+| T02 Criar conta | `cadastro.html` | `js/cadastro.js` | RF002 |
+| T03 Home | `index.html` | `js/home.js` | — |
+| T05 Buscar jogadores | `jogadores.html` | `js/jogadores.js` | RF003 |
+| T07 Perfil do jogador | `perfil.html` | `js/perfil.js` | RF003, RF004, RF005 |
+
+Ainda não há login (T01). Até lá, o jogador que cria a conta fica guardado no navegador (`localStorage`) como o jogador em uso: ele aparece na sidebar e é o perfil aberto em `perfil.html` sem `?id=`. "Sair" só limpa essa informação. Os módulos Duplas, Partidas e Ranking aparecem desabilitados na navegação.
 
 ## Entidade Jogador
 
