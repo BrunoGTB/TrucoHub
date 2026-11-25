@@ -15,7 +15,9 @@ import { JogadorRepositoryMemoria } from '../backend/repositories/jogador-reposi
 export async function criarJogadorRepository() {
   if (ambiente.bancoDados === TIPO_BANCO.FIRESTORE) {
     const { obterFirestore } = await import('./firebase.js');
-    const { JogadorRepositoryFirestore } = await import('../backend/repositories/jogador-repository-firestore.js');
+    const { JogadorRepositoryFirestore } = await import(
+      '../backend/repositories/jogador-repository-firestore.js'
+    );
     return new JogadorRepositoryFirestore(obterFirestore());
   }
   return new JogadorRepositoryMemoria();

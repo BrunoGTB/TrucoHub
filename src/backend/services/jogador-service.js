@@ -65,7 +65,10 @@ function normalizarParaBusca(texto) {
  */
 function normalizarApelido(apelido) {
   const apelidoLimpo = apelido.trim();
-  return apelidoLimpo.startsWith(PREFIXO_APELIDO) ? apelidoLimpo : `${PREFIXO_APELIDO}${apelidoLimpo}`;
+  if (apelidoLimpo.startsWith(PREFIXO_APELIDO)) {
+    return apelidoLimpo;
+  }
+  return `${PREFIXO_APELIDO}${apelidoLimpo}`;
 }
 
 /**
@@ -91,7 +94,9 @@ export class JogadorService {
 
   /**
    * Cadastra um novo jogador.
-   * @param {{ nome: string, apelido: string, email: string, senha: string, confirmacaoSenha: string }} dados
+   * @param {{
+   *   nome: string, apelido: string, email: string, senha: string, confirmacaoSenha: string
+   * }} dados
    * @returns {Promise<object>} Jogador cadastrado, sem dados sensíveis.
    * @throws {ErroValidacao} Campos vazios, senha curta ou senhas diferentes.
    * @throws {ErroConflito} Apelido ou e-mail já usados (RF002.1, RF002.2).
@@ -167,13 +172,27 @@ export class JogadorService {
    * @see RF004
    */
   async alterarJogador(id, dados) {
-    const { nome, apelido, fotoUrl, senha, confirmacaoSenha, senhaAtual, email } = dados ?? {};
     const jogadorAtual = await this.#obterJogadorExistente(id);
-
-    if (email !== undefined) {
+    if (dados?.email !== undefined) {
       throw new ErroValidacao(MENSAGENS.EMAIL_NAO_ALTERAVEL);
     }
+    const alteracoes = await this.#montarAlteracoes(dados ?? {}, jogadorAtual);
+    if (Object.keys(alteracoes).length === 0) {
+      throw new ErroValidacao(MENSAGENS.NADA_PARA_ALTERAR);
+    }
+    const jogadorAtualizado = await this.#repository.atualizar(jogadorAtual.id, alteracoes);
+    return paraRespostaPublica(jogadorAtualizado);
+  }
 
+  /**
+   * Valida os campos enviados na alteração e devolve só os que mudam.
+   * @param {object} dados Campos enviados (veja alterarJogador).
+   * @param {object} jogadorAtual Jogador como está no banco.
+   * @returns {Promise<object>} Alterações prontas para o repository.
+   * @see RF004
+   */
+  async #montarAlteracoes(dados, jogadorAtual) {
+    const { nome, apelido, fotoUrl, senha, confirmacaoSenha, senhaAtual } = dados;
     const alteracoes = {};
     if (nome !== undefined) {
       alteracoes.nome = this.#validarNome(nome);
@@ -191,13 +210,7 @@ export class JogadorService {
       this.#validarSenha(senha, confirmacaoSenha);
       alteracoes.senhaHash = await gerarHashSenha(senha);
     }
-
-    if (Object.keys(alteracoes).length === 0) {
-      throw new ErroValidacao(MENSAGENS.NADA_PARA_ALTERAR);
-    }
-
-    const jogadorAtualizado = await this.#repository.atualizar(jogadorAtual.id, alteracoes);
-    return paraRespostaPublica(jogadorAtualizado);
+    return alteracoes;
   }
 
   /**

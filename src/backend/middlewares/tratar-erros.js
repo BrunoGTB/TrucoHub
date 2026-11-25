@@ -16,7 +16,8 @@ const MENSAGEM_JSON_INVALIDO = 'O corpo da requisição não é um JSON válido.
  * @param {Error} erro
  * @param {import('express').Request} req
  * @param {import('express').Response} res
- * @param {import('express').NextFunction} _next Obrigatório para o Express reconhecer o middleware de erro.
+ * @param {import('express').NextFunction} _next Obrigatório para o Express reconhecer
+ *   o middleware de erro.
  */
 export function tratarErros(erro, req, res, _next) {
   if (erro instanceof AppError) {

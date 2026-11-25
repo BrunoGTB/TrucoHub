@@ -5,7 +5,9 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { JogadorService, MENSAGENS } from '../../src/backend/services/jogador-service.js';
-import { JogadorRepositoryMemoria } from '../../src/backend/repositories/jogador-repository-memoria.js';
+import {
+  JogadorRepositoryMemoria
+} from '../../src/backend/repositories/jogador-repository-memoria.js';
 import { STATUS } from '../../src/backend/models/jogador.js';
 
 const SENHA_VALIDA = 'segredo123';
@@ -62,7 +64,8 @@ describe('JogadorService', () => {
     });
 
     it('exige confirmação igual à senha', async () => {
-      await assert.rejects(service.cadastrarJogador(dadosCadastro({ confirmacaoSenha: 'outra12345' })), {
+      const dados = dadosCadastro({ confirmacaoSenha: 'outra12345' });
+      await assert.rejects(service.cadastrarJogador(dados), {
         message: MENSAGENS.SENHAS_DIFERENTES
       });
     });
@@ -91,10 +94,18 @@ describe('JogadorService', () => {
 
   describe('buscarJogadores e consultarJogador (RF003)', () => {
     it('busca por parte do nome ou do apelido, ignorando acentos', async () => {
-      await service.cadastrarJogador(dadosCadastro({ nome: 'João Pereira', apelido: 'zap', email: 'j@x.com' }));
-      await service.cadastrarJogador(dadosCadastro({ nome: 'Ana Lima', apelido: 'espadilha', email: 'a@x.com' }));
-      assert.deepEqual((await service.buscarJogadores('joao')).map((j) => j.nome), ['João Pereira']);
-      assert.deepEqual((await service.buscarJogadores('@espa')).map((j) => j.nome), ['Ana Lima']);
+      const nomesEncontrados = async (texto) => {
+        const jogadores = await service.buscarJogadores(texto);
+        return jogadores.map((jogador) => jogador.nome);
+      };
+      await service.cadastrarJogador(
+        dadosCadastro({ nome: 'João Pereira', apelido: 'zap', email: 'j@x.com' })
+      );
+      await service.cadastrarJogador(
+        dadosCadastro({ nome: 'Ana Lima', apelido: 'espadilha', email: 'a@x.com' })
+      );
+      assert.deepEqual(await nomesEncontrados('joao'), ['João Pereira']);
+      assert.deepEqual(await nomesEncontrados('@espa'), ['Ana Lima']);
       assert.equal((await service.buscarJogadores('')).length, 2);
     });
 
@@ -136,7 +147,9 @@ describe('JogadorService', () => {
     it('rejeita apelido de outro jogador (RF002.1)', async () => {
       await service.cadastrarJogador(dadosCadastro({ apelido: 'zap', email: 'z@x.com' }));
       const { id } = await service.cadastrarJogador(dadosCadastro());
-      await assert.rejects(service.alterarJogador(id, { apelido: 'zap' }), { message: MENSAGENS.APELIDO_EM_USO });
+      await assert.rejects(service.alterarJogador(id, { apelido: 'zap' }), {
+        message: MENSAGENS.APELIDO_EM_USO
+      });
     });
 
     it('não permite alterar o e-mail', async () => {
@@ -154,7 +167,9 @@ describe('JogadorService', () => {
         senha: novaSenha,
         confirmacaoSenha: novaSenha
       });
-      await assert.rejects(service.excluirJogador(id, SENHA_VALIDA), { message: 'Senha incorreta.' });
+      await assert.rejects(service.excluirJogador(id, SENHA_VALIDA), {
+        message: 'Senha incorreta.'
+      });
       await service.excluirJogador(id, novaSenha);
     });
 
@@ -177,14 +192,18 @@ describe('JogadorService', () => {
 
     it('rejeita alteração sem campos', async () => {
       const { id } = await service.cadastrarJogador(dadosCadastro());
-      await assert.rejects(service.alterarJogador(id, {}), { message: MENSAGENS.NADA_PARA_ALTERAR });
+      await assert.rejects(service.alterarJogador(id, {}), {
+        message: MENSAGENS.NADA_PARA_ALTERAR
+      });
     });
   });
 
   describe('excluirJogador (RF005)', () => {
     it('exige a senha (RF005.1)', async () => {
       const { id } = await service.cadastrarJogador(dadosCadastro());
-      await assert.rejects(service.excluirJogador(id, ''), { message: MENSAGENS.SENHA_OBRIGATORIA_EXCLUSAO });
+      await assert.rejects(service.excluirJogador(id, ''), {
+        message: MENSAGENS.SENHA_OBRIGATORIA_EXCLUSAO
+      });
       await assert.rejects(service.excluirJogador(id, 'senhaErrada'), { statusHttp: 401 });
     });
 
