@@ -200,8 +200,8 @@ flowchart TB
         direction TB
         subgraph FRONT["📦 src/frontend  (front-end)"]
             direction LR
-            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, cadastro.html, jogadores.html,<br/>perfil.html, editar-perfil.html,<br/>partidas.html <i>(RF012 a RF015, a criar)</i>"]
-            JS["📁 js<br/><i>scripts das telas</i><br/>home.js, cadastro.js, jogadores.js, perfil.js,<br/>editar-perfil.js, partidas.js <i>(a criar)</i>"]
+            PAGES["📁 pages<br/><i>telas HTML</i><br/>index.html, cadastro.html, jogadores.html,<br/>perfil.html, editar-perfil.html,<br/>partidas.html <i>(a criar, RF012 a RF015)</i>"]
+            JS["📁 js<br/><i>scripts das telas</i><br/>home.js, cadastro.js, jogadores.js, perfil.js,<br/>editar-perfil.js, partidas.js <i>(a criar, RF012 a RF015)</i>"]
             JSUTILS["📁 js/utils<br/><i>scripts compartilhados</i><br/>api.js, tela.js, jogador-atual.js, layout.js"]
             CSS["📁 css<br/><i>estilos</i><br/>style.css"]
         end
@@ -210,11 +210,11 @@ flowchart TB
         subgraph BACK["📦 src/backend  (back-end)"]
             direction TB
             APP["📄 app.js, server.js<br/><i>monta o Express e injeta as dependências</i>"]
-            ROUTES["📁 routes<br/>jogador-routes.js, partida-routes.js"]
-            CTRL["📁 controllers<br/>jogador-controller.js, partida-controller.js"]
-            SERV["📁 services<br/>jogador-service.js, partida-service.js"]
-            REPO["📁 repositories<br/>jogador-repository-firestore.js, jogador-repository-memoria.js,<br/>dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
-            MODELS["📁 models<br/>jogador.js, dupla.js, partida.js, convite-partida.js"]
+            ROUTES["📁 routes<br/>jogador-routes.js,<br/>partida-routes.js <i>(a criar)</i>"]
+            CTRL["📁 controllers<br/>jogador-controller.js,<br/>partida-controller.js <i>(a criar)</i>"]
+            SERV["📁 services<br/>jogador-service.js,<br/>partida-service.js <i>(a criar)</i>"]
+            REPO["📁 repositories<br/>jogador-repository-firestore.js, jogador-repository-memoria.js<br/><i>a criar (RF012 a RF015):</i> dupla-repository-firestore.js,<br/>partida-repository-firestore.js, convite-partida-repository-firestore.js"]
+            MODELS["📁 models<br/>jogador.js<br/><i>a criar (RF012 a RF015):</i><br/>dupla.js, partida.js, convite-partida.js"]
             UTILS["📁 utils<br/>senha.js"]
             MIDDLE["📁 middlewares<br/>tratar-erros.js"]
             ERRORS["📁 errors<br/>app-error.js"]
