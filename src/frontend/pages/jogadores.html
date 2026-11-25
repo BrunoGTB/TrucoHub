@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogadores | TrucoHub</title>
+  <link rel="stylesheet" href="css/jogadores.css">
+  <script type="module" src="js/jogadores.js"></script>
+</head>
+<body>
+  <header class="cabecalho">
+    <h1>TrucoHub · Jogadores</h1>
+    <p>CRUD da conta do jogador (RF002 a RF005).</p>
+  </header>
+
+  <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+
+  <main class="conteudo">
+    <!-- RF002 – Cadastrar Jogador -->
+    <section class="cartao" aria-labelledby="titulo-cadastro">
+      <h2 id="titulo-cadastro">Criar conta</h2>
+      <form id="form-cadastro" novalidate>
+        <label>Nome <input name="nome" maxlength="80" autocomplete="name" required></label>
+        <label>Apelido <input name="apelido" maxlength="30" placeholder="@seuapelido" required></label>
+        <label>E-mail <input name="email" type="email" maxlength="120" autocomplete="email" required></label>
+        <label>Senha <input name="senha" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>Confirmar senha <input name="confirmacaoSenha" type="password" minlength="8" autocomplete="new-password" required></label>
+        <button type="submit">Criar conta</button>
+      </form>
+    </section>
+
+    <!-- RF003 – Consultar Jogador -->
+    <section class="cartao" aria-labelledby="titulo-busca">
+      <h2 id="titulo-busca">Buscar jogadores</h2>
+      <form id="form-busca" role="search">
+        <label>Nome ou apelido <input name="busca" type="search"></label>
+        <button type="submit">Buscar</button>
+      </form>
+      <ul id="lista-jogadores" class="lista"></ul>
+    </section>
+
+    <!-- RF004 – Alterar Jogador e RF005 – Excluir Jogador -->
+    <section id="secao-edicao" class="cartao" aria-labelledby="titulo-edicao" hidden>
+      <h2 id="titulo-edicao">Editar perfil</h2>
+      <form id="form-edicao" novalidate>
+        <input name="id" type="hidden">
+        <label>E-mail (somente leitura) <input name="email" readonly></label>
+        <label>Nome <input name="nome" maxlength="80" required></label>
+        <label>Apelido <input name="apelido" maxlength="30" required></label>
+        <label>Endereço da foto <input name="fotoUrl" type="url" maxlength="255" placeholder="https://..."></label>
+        <label>Nova senha (opcional) <input name="senha" type="password" minlength="8" autocomplete="new-password"></label>
+        <label>Confirmar nova senha <input name="confirmacaoSenha" type="password" minlength="8" autocomplete="new-password"></label>
+        <div class="acoes">
+          <button type="submit">Salvar</button>
+          <button type="button" id="botao-cancelar" class="secundario">Cancelar</button>
+        </div>
+      </form>
+
+      <form id="form-exclusao" class="zona-perigo" novalidate>
+        <h3>Excluir conta</h3>
+        <p>Esta ação não pode ser desfeita. Digite sua senha para confirmar.</p>
+        <label>Senha <input name="senha" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="perigo">Excluir conta</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

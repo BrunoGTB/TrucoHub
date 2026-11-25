@@ -1,3 +1,10 @@
 [build]
   publish = "dist"
   command = "rm -rf dist && mkdir dist && cp -r src/frontend/pages/. dist/ && cp -r src/frontend/css src/frontend/js dist/ && (cp -r public/assets dist/ || true)"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# API REST do backend (/api/*), executada como Netlify Function (netlify/functions/api.mjs).
+[functions]
+  directory = "netlify/functions"
